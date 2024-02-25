@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import ChatAvatar from "@/components/shared/chat/chat-avatar";
+import { CheckCheck } from "lucide-react";
+import { useAuth } from "@/context/auth-context";
 
 interface Props {
   chat: any;
@@ -11,6 +13,9 @@ interface Props {
 }
 
 export default function ChatCard({ chat, selectedChat = false }: Props) {
+  const { authUser } = useAuth();
+  const oppositeUser = chat?.participants?.[0];
+  const lastMessage = chat?.lastMessage;
   return (
     <Link
       to="#"
@@ -24,14 +29,22 @@ export default function ChatCard({ chat, selectedChat = false }: Props) {
         "justify-start gap-4"
       )}
     >
-            <ChatAvatar src={chat?.avatar} name={chat?.avatar} />
+      <ChatAvatar
+        src={oppositeUser?.profilePic}
+        name={oppositeUser?.fullName}
+      />
 
       <div className="flex flex-col max-w-28">
-        <span>{chat?.name}</span>
-        {chat?.messages?.length > 0 && (
+        <span>{oppositeUser?.fullName}</span>
+        {lastMessage?.text && (
           <span className="text-zinc-300 text-xs truncate ">
-            {chat?.messages?.[chat?.messages?.length - 1]?.name.split(" ")[0]}:{" "}
-            {chat?.messages?.[chat?.messages?.length - 1]?.message}
+            {lastMessage?.senderId === authUser?._id ? (
+              <CheckCheck
+                width={16}
+                className={lastMessage?.seen && "text-[blue]"}
+              />
+            ) : null}
+            {lastMessage?.text}
           </span>
         )}
       </div>

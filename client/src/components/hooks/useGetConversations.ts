@@ -7,15 +7,13 @@ import { NetworkService } from "@/lib/network";
 
 const useGetConversations = () => {
 	const [loading, setLoading] = useState(false);
-	// const setConversations = useStore(useShallow((state) => state.setConversations));
-
-
+	const setConversations = useStore(useShallow((state) => state.setConversations));
 	const getConversations = async () => {
 		setLoading(true);
 		NetworkService.get(`/api/conversations/me`).then((res: any) => {
-			console.log(`🚀 ~ file: useGetConversations.ts:18 ~ NetworkService.get ~ res:`, res);
+			// console.log(`🚀 ~ file: useGetConversations.ts:18 ~ NetworkService.get ~ res:`, res);
 			if (res?.error) return handleError(res);
-			// setConversations(res);
+			setConversations(res);
 		}).catch((error) => {
 			handleError(error);
 		}).finally(() => {

@@ -14,7 +14,7 @@ export class Network {
 
     public async get<T>(url: string, headers = DEFAULT_HEADERS): Promise<T> {
         const fullUrl = `${SERVER_BASE_URL}${url}`;
-        const response = await fetch(fullUrl, { headers });
+        const response = await fetch(fullUrl, { headers,credentials: "include"});
         return response.json();
     }
 
@@ -28,6 +28,7 @@ export class Network {
             method: "POST",
             headers,
             body: JSON.stringify(body),
+            credentials: "include"
         });
         return response.json();
     }
@@ -42,13 +43,17 @@ export class Network {
             method: "PUT",
             headers,
             body: JSON.stringify(body),
+            credentials: "include"
         });
         return response.json();
     }
 
     public async delete<T>(url: string, headers = DEFAULT_HEADERS): Promise<T> {
         const fullUrl = `${SERVER_BASE_URL}${url}`;
-        const response = await fetch(fullUrl, { method: "DELETE", headers });
+        const response = await fetch(fullUrl, {
+            method: "DELETE", headers,
+            credentials: "include"
+        });
         return response.json();
     }
 

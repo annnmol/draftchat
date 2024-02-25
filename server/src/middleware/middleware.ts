@@ -14,6 +14,9 @@ const middleware = async (
   try {
     const token = req.cookies.jwt;
 
+    console.log(`🚀 ~ file: middleware.ts:17 ~ req.cookies:`, req.cookies);
+
+
     if (!token) {
       return res.status(401).json({ error: "Unauthorized - No Token Provided" });
     }

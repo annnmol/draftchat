@@ -6,8 +6,9 @@ import ChatCardMobile from "../chat-card/chat-card-mobile";
 import { userData } from "@/lib/dummy-data";
 import useGetConversations from "@/components/hooks/useGetConversations";
 import { useEffect } from "react";
-import { useStore } from "zustand";
+import useStore from "@/zustand";
 import { useShallow } from "zustand/react/shallow";
+
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -16,14 +17,17 @@ const links = userData;
 
 export default function Sidebar({ isCollapsed }: SidebarProps) {
   const { getConversations, loading } = useGetConversations();
-  // const conversations = useStore<any>((state:any) => state.conversations);
+  // const state = useStore<any>((state:any) => state.conversations);
+  const conversations = useStore(useShallow((state) => state.conversations));
 
-	// console.log(`🚀 ~ file: useGetConversations.ts:12 ~ useGetConversations ~ conversations:`, conversations);
 
 
-  // useEffect(() => {
-  //   getConversations();
-  // },[getConversations])
+	console.log(`🚀 ~ file: useGetConversations.ts:12 ~ useGetConversations ~ conversations:`,conversations );
+
+
+  useEffect(() => {
+    getConversations();
+  },[]) // eslint-disable-line
 
   return (
     <div
@@ -36,21 +40,21 @@ export default function Sidebar({ isCollapsed }: SidebarProps) {
         </div>
       )}
       <nav className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
-        {links?.map((link, index) => {
-          if (isCollapsed) {
-            return (
-              <ChatCardMobile
-                key={link?.id ?? index.toString()}
-                chat={link}
-                selectedChat={false}
-              />
-            );
-          }
+        {conversations?.map((item:any, index:number) => {
+          // if (isCollapsed) {
+          //   return (
+          //     <ChatCardMobile
+          //       key={link?.id ?? index.toString()}
+          //       chat={link}
+          //       selectedChat={false}
+          //     />
+          //   );
+          // }
 
           return (
             <ChatCard
-              key={link?.id ?? index.toString()}
-              chat={link}
+              key={item?._id ?? index.toString()}
+              chat={item}
               selectedChat={false}
             />
           );

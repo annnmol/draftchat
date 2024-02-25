@@ -22,7 +22,7 @@ export default function ChatAvatar({
         height={6}
         className={className}
       />
-      <AvatarFallback>{name?.slice(0, 2)?.toUpperCase()}</AvatarFallback>
+      <AvatarFallback className={className}>{name?.slice(0, 2)?.toUpperCase()}</AvatarFallback>
     </Avatar>
   );
 }

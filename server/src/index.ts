@@ -32,7 +32,10 @@ const app = express();
 /** http Server Handling */
 const httpServer = http.createServer(app);
 
-app.use(cors()); // to enable CORS
+app.use(cors({
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    credentials: true,
+}));
 app.use(express.json()); // to parse the incoming requests with JSON payloads (from req.body)
 app.use(bodyParser.json()); //
 app.use(cookieParser()); // to parse the incoming requests with cookies

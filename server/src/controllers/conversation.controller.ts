@@ -11,7 +11,7 @@ async function getConversations(req: any, res: Response) {
 		const conversations = await Conversation.find({ participants: userObjectId }).populate({
 			path: "participants",
 			select: "fullName email username profilePic _id",
-		});
+		}).select("-messages");
 
 		// remove the current user from the participants array
 		conversations.forEach((conversation) => {
@@ -77,7 +77,7 @@ async function getConversation(req: any, res: Response) {
 		let conversation = await Conversation.findById(conversationObjectId).populate({
 			path: "participants",
 			select: "fullName email username profilePic _id",
-		});
+		}).select("-messages");
 
 		if (!conversation) {
 			return res.status(404).json({ error: "Conversation not found" });
