@@ -110,15 +110,33 @@ export function formatPrice(
 }
 
 
-
-export const handleError = (error: unknown,title:string="An error occurred") => {
-  console.error("handle error",{ title,error });
-  toast.error(title, {
-    description: typeof error === "string" ? error : JSON.stringify(error) || "An error occurred",
-    position: "top-center",
-    duration: 3000
+export async function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
   });
-  throw new Error(typeof error === "string" ? error : JSON.stringify(error));
+}
+
+
+export const isValidObject = (obj: unknown) => {
+  //also check if it has at least one property
+  return obj !== null && typeof obj === "object" && !Array.isArray(obj) && Object.keys(obj)?.length > 0;
+
+}
+
+export const handleError = (error: Error | any, title: string = "An error occurred") => {
+  console.error("handle error", { title, error });
+
+  if (!isValidObject(error)) return;
+
+  toast.error(title, {
+    description: error?.message ?? error?.error ?? "Something went wrong",
+    position: "top-center",
+    duration: 3000,
+    closeButton: true,
+  });
+
+  throw new Error(error);
+
 };
 
 

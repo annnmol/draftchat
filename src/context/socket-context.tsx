@@ -3,7 +3,7 @@
 import { SERVER_BASE_URL } from "@/lib/network";
 // import { SOCKET_CONNECTION_TYPES } from "@/lib/enum";
 // import useStore from "@/zustand";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
 const notificationSound = "/sounds/notification.mp3";
@@ -26,7 +26,7 @@ export const SocketContext = React.createContext<ISocketContext>({
   socket: undefined,
 });
 
-export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
+export const SocketContextProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const [socket, setSocket] = useState<Socket | undefined>();
   // const { setMessages } = useStore();
 
@@ -83,4 +83,10 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       {children}
     </SocketContext.Provider>
   );
+};
+
+
+export const useSocket = () => {
+  const state = useContext(SocketContext);
+  return state ?? undefined;
 };

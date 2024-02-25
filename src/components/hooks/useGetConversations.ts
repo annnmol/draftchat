@@ -14,7 +14,7 @@ const useGetConversations = () => {
 		setLoading(true);
 		NetworkService.get(`/api/users/${userId}/conversations`).then((res: any) => {
 			console.log(`🚀 ~ file: useGetConversations.ts:18 ~ NetworkService.get ~ res:`, res);
-			if (res?.error) return handleError(res?.error);
+			if (res?.error) return handleError(res);
 			setConversations(res);
 		}).catch((error) => {
 			handleError(error);

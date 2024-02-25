@@ -1,19 +1,19 @@
 import { toast } from "sonner";
 import { useState } from "react";
 import { handleError } from "@/lib/utils";
-import { useAuth } from "@/context/useAuth";
+import { useAuth } from "@/context/auth-context";
 import { NetworkService } from "@/lib/network";
 import { API_ENDPOINTS } from "@/lib/endpoints";
 
 const useAuthService = () => {
     const [loading, setLoading] = useState(false);
-    const { handleAuthChange } = useAuth();
+    const { handleAuthChange, } = useAuth();
 
     const loginFn = async (req: IData) => {
         setLoading(true);
         NetworkService.post(API_ENDPOINTS.LOGIN, req).then((res: any) => {
             console.log(`🚀 ~ file: useAuthService.ts:24 ~ loginFn ~ data:`, res);
-            if (res?.error) return handleError(res?.error);
+            if (res?.error) return handleError(res);
             // set cookies
             handleAuthChange(res);
 
@@ -35,7 +35,7 @@ const useAuthService = () => {
         setLoading(true);
         NetworkService.post(API_ENDPOINTS.SIGNUP, req).then((res: any) => {
             console.log(`🚀 ~ file: useAuthService.ts:24 ~ signfn ~ data:`, res);
-            if (res?.error) return handleError(res?.error);
+            if (res?.error) return handleError(res);
             // set cookies
             handleAuthChange(res);
 
@@ -57,7 +57,7 @@ const useAuthService = () => {
         setLoading(true);
         NetworkService.post(API_ENDPOINTS.LOGOUT, {}).then((res: any) => {
             console.log(`🚀 ~ file: useAuthService.ts:24 ~ logoutFn ~ data:`, res);
-            if (res?.error) return handleError(res?.error);
+            if (res?.error) return handleError(res);
             // set cookies
             handleAuthChange(res);
 

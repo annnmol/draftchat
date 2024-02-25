@@ -3,7 +3,7 @@ import { useShallow } from "zustand/react/shallow";
 
 
 import useStore from "@/zustand";
-import { useSocket } from "@/context/useSocket";
+import { useSocket } from "@/context/socket-context";
 
 const notificationSound = "/sounds/notification.mp3";
 

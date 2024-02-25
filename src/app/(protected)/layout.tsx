@@ -1,8 +1,9 @@
+import { Outlet } from "react-router-dom";
 import Footer from "@/components/shared/footer";
 import Header from "@/components/shared/header";
-import { Outlet } from "react-router-dom";
 
 export default function ProtectedLayout() {
+
   return (
     <main className="flex h-screen flex-col items-center justify-center p-4 md:px-24 py-32 gap-4">
       <div className="flex justify-between max-w-5xl w-full items-center">

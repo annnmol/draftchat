@@ -8,8 +8,9 @@ import RegisterPage from "@/app/auth/register/page.tsx";
 import AuthLayout from "@/app/auth/layout.tsx";
 import Home from "@/app/page.tsx";
 import RootLayout from "@/app/layout.tsx";
-import ProtectedLayout from "@/app/(protected)/page";
-import ChatsPage from "./app/(protected)/chat/page";
+import ProtectedLayout from "@/app/(protected)/layout";
+import ChatsPage from "@/app/(protected)/chat/page";
+import { Toaster } from "sonner";
 
 
 // const RootLayout = async () => {
@@ -61,6 +62,7 @@ function App() {
   return (
     <>
       <RouterProvider router={router} />
+      <Toaster position="top-center" richColors />
     </>
   );
 }

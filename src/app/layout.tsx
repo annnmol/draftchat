@@ -1,7 +1,6 @@
-import "@/global.css";
-import { Toaster } from "sonner";
-import Providers from "@/lib/providers";
 import { Outlet } from "react-router-dom";
+import "@/global.css";
+import Providers from "@/lib/providers";
 
 export default function RootLayout() {
   return (
@@ -11,7 +10,6 @@ export default function RootLayout() {
           <Outlet />
         </Providers>
       </main>
-      <Toaster position="top-center" richColors />
     </>
   );
 }

@@ -1,11 +1,13 @@
-import { SocketProvider } from "@/context/socket-context";
+import { AuthContextProvider } from "@/context/auth-context";
+import { SocketContextProvider } from "@/context/socket-context";
 import { PropsWithChildren } from "react";
 
 const Providers = ({ children }: PropsWithChildren) => {
   return (
     <>
-      {/* {children} */}
-      <SocketProvider>{children}</SocketProvider>
+      <AuthContextProvider>
+        <SocketContextProvider>{children}</SocketContextProvider>
+      </AuthContextProvider>
     </>
   );
 };

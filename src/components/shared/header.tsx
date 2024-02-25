@@ -1,5 +1,3 @@
-"use client";
-
 import { GITHUB_URL } from "@/lib/dummy-data";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "../ui/button";
@@ -15,7 +13,7 @@ export default function Header() {
   return (
     <>
       <Link to="#" className="text-4xl font-bold text-gradient">
-      💬 NextChat
+      💬 DraftChat
       </Link>
       <Link
         to={GITHUB_URL}

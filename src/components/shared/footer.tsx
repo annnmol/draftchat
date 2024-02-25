@@ -24,7 +24,7 @@ const Footer: FC<Props> = () => {
         Source code available on{" "}
         <a
           className="font-semibold"
-          href={`${GITHUB_URL}/nextchat`}
+          href={`${GITHUB_URL}/draftchat`}
           target="_blank"
           rel="noopener noreferrer"
         >
