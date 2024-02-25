@@ -1,9 +1,9 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
+import ChatAvatar from "@/components/shared/chat/chat-avatar";
 
 interface Props {
   chat: any;
@@ -24,16 +24,8 @@ export default function ChatCard({ chat, selectedChat = false }: Props) {
         "justify-start gap-4"
       )}
     >
-      <Avatar className="flex justify-center items-center">
-        <AvatarImage
-          src={chat?.avatar}
-          alt={chat?.avatar}
-          width={6}
-          height={6}
-          className="w-10 h-10 "
-        />
-        <AvatarFallback>{chat?.name?.slice(0, 2)}</AvatarFallback>
-      </Avatar>
+            <ChatAvatar src={chat?.avatar} name={chat?.avatar} />
+
       <div className="flex flex-col max-w-28">
         <span>{chat?.name}</span>
         {chat?.messages?.length > 0 && (

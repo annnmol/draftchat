@@ -1,7 +1,8 @@
 import { NextFunction, Response } from "express";
 import jwt from "jsonwebtoken";
+import { getUserByUserId } from "../models/user.model";
 
-import { getUserByUserId } from "../lib/user-account";
+
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -19,7 +20,7 @@ const middleware = async (
 
     const decoded: any = jwt.verify(token, JWT_SECRET);
 
-    if (!decoded ||  !decoded?.userId) {
+    if (!decoded || !decoded?.userId) {
       return res.status(401).json({ error: "Unauthorized - Invalid Token" });
     }
 

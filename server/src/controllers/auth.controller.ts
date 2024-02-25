@@ -10,7 +10,7 @@ let a = {
 	"password": "string"
 }
 
-export const signup = async (req: Request, res: Response) => {
+ const signup = async (req: Request, res: Response) => {
 	try {
 		const { fullName, username, email, password } = req.body;
 
@@ -69,7 +69,7 @@ export const signup = async (req: Request, res: Response) => {
 	}
 };
 
-export const login = async (req: Request, res: Response) => {
+ const login = async (req: Request, res: Response) => {
 	try {
 		const { email, password } = req.body;
 		const user = await User.findOne({ email });
@@ -96,7 +96,7 @@ export const login = async (req: Request, res: Response) => {
 	}
 };
 
-export const logout = (req: Request, res: Response) => {
+ const logout = (req: Request, res: Response) => {
 	try {
 		res.cookie("jwt", "", { maxAge: 0 });
 		res.status(200).json({ message: "Logged out successfully" });
@@ -107,5 +107,8 @@ export const logout = (req: Request, res: Response) => {
 		
 	}
 };
+
+export { signup, login, logout};
+
 
 

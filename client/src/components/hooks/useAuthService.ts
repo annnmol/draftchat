@@ -20,7 +20,7 @@ const useAuthService = () => {
             toast.success("Logged In", {
                 description: res?.email ?? "",
                 position: "top-center",
-                duration: 2000,
+                duration: 1500,
             });
 
         }).catch((error) => {
@@ -42,7 +42,7 @@ const useAuthService = () => {
             toast.success("New Account created", {
                 description: res?.email ?? "",
                 position: "top-center",
-                duration: 2000,
+                duration: 1500,
             });
 
         }).catch((error) => {
@@ -64,7 +64,7 @@ const useAuthService = () => {
             toast.success("Logged out", {
                 description: "",
                 position: "top-center",
-                duration: 2000,
+                duration: 1500,
             });
 
         }).catch((error) => {

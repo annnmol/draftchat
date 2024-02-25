@@ -19,6 +19,7 @@ import connectToMongoDB from './lib/mongoDB';
 import authRouter from './routes/auth.routes';
 import userRouter from './routes/user.routes';
 import middleware from './middleware/middleware';
+import messageRouter from './routes/message.routes';
 
 
 dotenv.config();
@@ -58,9 +59,11 @@ app.get("/api/health-check", healthCheckLogging);
 
 // routes
 app.use("/api/auth", authRouter);
+//protected routes
 app.use(middleware)
 app.use("/api/users", userRouter);
-app.use("/api/conversation",middleware ,conversationRouter);
+app.use("/api/conversations",conversationRouter);
+app.use("/api/messages",messageRouter);
 
 /** Route Error handling */
 app.use(errorHandlingLogging);
@@ -74,4 +77,5 @@ httpServer.listen(PORT, () => {
     // initializeSocketIO(io);
 });
 
-export default app;
+// export default app;
+export { io, httpServer, app}

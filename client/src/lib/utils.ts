@@ -129,7 +129,7 @@ export const handleError = (error: Error | any, title: string = "An error occurr
   toast.error(title, {
     description: error?.message ?? error?.error ?? "Something went wrong",
     position: "top-center",
-    duration: 3000,
+    duration: 1500,
     closeButton: true,
   });
 

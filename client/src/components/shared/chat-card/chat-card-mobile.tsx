@@ -1,9 +1,8 @@
 "use client";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
+import ChatAvatar from "@/components/shared/chat/chat-avatar";
 
 interface Props {
   chat: any;
@@ -24,16 +23,7 @@ export default function ChatCardMobile({ chat, selectedChat = false }: Props) {
           "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white"
       )}
     >
-      <Avatar className="flex justify-center items-center">
-        <AvatarImage
-          src={chat?.avatar}
-          alt={chat?.avatar}
-          width={6}
-          height={6}
-          className="w-10 h-10 "
-        />
-        <AvatarFallback>{chat?.name?.slice(0, 2)}</AvatarFallback>
-      </Avatar>
+      <ChatAvatar src={chat?.avatar} name={chat?.avatar} />
       <span className="sr-only">{chat?.name}</span>
     </Link>
   );

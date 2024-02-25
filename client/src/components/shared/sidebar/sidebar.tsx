@@ -4,6 +4,10 @@ import SidebarHeader from "./sidebar-header";
 import ChatCard from "../chat-card/chat-card";
 import ChatCardMobile from "../chat-card/chat-card-mobile";
 import { userData } from "@/lib/dummy-data";
+import useGetConversations from "@/components/hooks/useGetConversations";
+import { useEffect } from "react";
+import { useStore } from "zustand";
+import { useShallow } from "zustand/react/shallow";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -11,6 +15,16 @@ interface SidebarProps {
 const links = userData;
 
 export default function Sidebar({ isCollapsed }: SidebarProps) {
+  const { getConversations, loading } = useGetConversations();
+  // const conversations = useStore<any>((state:any) => state.conversations);
+
+	// console.log(`🚀 ~ file: useGetConversations.ts:12 ~ useGetConversations ~ conversations:`, conversations);
+
+
+  // useEffect(() => {
+  //   getConversations();
+  // },[getConversations])
+
   return (
     <div
       data-collapsed={isCollapsed}
