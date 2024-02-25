@@ -17,9 +17,9 @@ import { initializeSocketIO } from './socket/socket';
 import { redisPubClient, redisSubClient } from './lib/redis';
 import connectToMongoDB from './lib/mongoDB';
 import authRouter from './routes/auth.routes';
+import userRouter from './routes/user.routes';
+import middleware from './middleware/middleware';
 
-
-dotenv.config();
 
 dotenv.config();
 
@@ -31,10 +31,10 @@ const app = express();
 /** http Server Handling */
 const httpServer = http.createServer(app);
 
-app.use(cors());
+app.use(cors()); // to enable CORS
 app.use(express.json()); // to parse the incoming requests with JSON payloads (from req.body)
-app.use(bodyParser.json());
-app.use(cookieParser());
+app.use(bodyParser.json()); //
+app.use(cookieParser()); // to parse the incoming requests with cookies
 
 //* intialize socket socket server *//
 const io: Server = new Server(httpServer, SOCKET_DEFAULT_OPTIONS);
@@ -47,23 +47,20 @@ io.use((socket, next) => {
     socketIOMiddleware(socket, next);
 });
 
-// middlewares
-// app.use(apiMiddleware);
-
 /** Log the incoming request */
 app.use(incomingRequestLogging);
 
 //* Redis Adapter for Socket.IO *//
 io.adapter(createAdapter(redisPubClient, redisSubClient));
 
-
-
 // Health check endpoint
 app.get("/api/health-check", healthCheckLogging);
 
 // routes
 app.use("/api/auth", authRouter);
-app.use("/api/v1/conversation", conversationRouter);
+app.use(middleware)
+app.use("/api/users", userRouter);
+app.use("/api/conversation",middleware ,conversationRouter);
 
 /** Route Error handling */
 app.use(errorHandlingLogging);

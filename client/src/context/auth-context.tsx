@@ -26,14 +26,11 @@ export const AuthContext = createContext({
 } as IAuthUserContext);
 
 export const AuthContextProvider = ({ children }: PropsWithChildren) => {
+  const navigate = useNavigate(); 
 
   const [authUser, setAuthUser] = useState(parsedItem);
-  const navigate = useNavigate();
-
-  console.log(`🚀 ~ file: auth-context.tsx:32 ~ AuthContextProvider ~ authUser:`, authUser);
-
-
-  const handleAuthChange = async(data: any) => {
+  
+  const handleAuthChange = async (data: any) => {
     if (data?._id) {
       data = JSON.stringify(data);
       localStorage.setItem(AUTH_USER_KEY, data ?? null);

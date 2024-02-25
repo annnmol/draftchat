@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import jwt from "jsonwebtoken";
 
 import { getUserByUserId } from "../lib/user-account";
@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 const middleware = async (
   req: any,
   res: Response,
-  next: any
+  next: NextFunction
 ) => {
   try {
     const token = req.cookies.jwt;
@@ -25,12 +25,14 @@ const middleware = async (
 
     const user = await getUserByUserId(decoded.userId);
 
+    console.log(`🚀 ~ file: middleware.ts:28 ~ user:`, user);
+
+
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
     req.user = user;
-
     next();
   } catch (error: any) {
     console.log("Error in middleware: ", error?.message);
