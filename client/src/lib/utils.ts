@@ -124,9 +124,7 @@ export const isValidObject = (obj: unknown) => {
 }
 
 export const handleError = (error: Error | any, title: string = "An error occurred") => {
-  console.error("handle error", { title, error });
-
-  if (!isValidObject(error)) return;
+  console.error("handle error", { title, error }, Object.keys(error)?.length > 0);
 
   toast.error(title, {
     description: error?.message ?? error?.error ?? "Something went wrong",
