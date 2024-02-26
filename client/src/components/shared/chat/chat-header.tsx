@@ -4,33 +4,44 @@ import { Link } from "react-router-dom";
 
 import { buttonVariants } from "@/components/ui/button";
 import { userData } from "@/lib/dummy-data";
-import { cn } from "@/lib/utils";
+import { cn, formatDateTime } from "@/lib/utils";
 import ChatAvatar from "@/components/shared/chat/chat-avatar";
+import useStore from "@/zustand";
+import { useShallow } from "zustand/react/shallow";
+import ChatHeaderInfo from "./chat-header-info";
 
-const TopbarIcons = [{ icon: Phone }, { icon: Video }, { icon: Info }];
+const TopbarIcons = [
+  // { icon: Phone },
+  // { icon: Video },
+  // { icon: Info }
+];
 
-const selectedConversation = userData?.[0];
-const lastActive = "2 mins ago";
+// const selectedConversation = userData?.[0];
+// const lastActive = "2 mins ago";
 
 interface Props {}
 
 export default function ChatHeader() {
+  const selectedConversation = useStore(useShallow((state) => state.selectedConversation));
+  const oppositeUser = selectedConversation?.participants?.[0];
+  const lastActive = formatDateTime(selectedConversation?.updatedAt).dateTime;
   return (
     <>
       <div className="w-full h-20 flex p-4 justify-between items-center border-b">
         <div className="flex items-center gap-2">
           <ChatAvatar
-            name={selectedConversation?.name}
-            src={selectedConversation?.avatar}
+            name={oppositeUser?.fullName}
+            src={oppositeUser?.profilePic}
           />
           <div className="flex flex-col">
-            <span className="font-medium">{selectedConversation?.name}</span>
+            <span className="font-medium">{oppositeUser?.fullName}</span>
             <span className="text-xs">{lastActive}</span>
           </div>
         </div>
 
         <div>
-          {TopbarIcons.map((icon, index) => (
+          <ChatHeaderInfo/>
+          {/* {TopbarIcons.map((icon, index) => (
             <Link
               key={index}
               to="#"
@@ -42,7 +53,7 @@ export default function ChatHeader() {
             >
               <icon.icon size={20} className="text-muted-foreground" />
             </Link>
-          ))}
+          ))} */}
         </div>
       </div>
     </>

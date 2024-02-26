@@ -8,12 +8,22 @@ async function sendMessage(req: any, res: Response) {
 		const { conversationId } = req?.params;
 
 		const { text, mediaType, mediaUrl } = req.body;
+
+		console.log(`🚀 ~ file: message.controller.ts:12 ~ sendMessage ~ text:`, text);
+
+
+		if (!text && !mediaUrl) {
+			return res.status(400).json({ error: "message cannot be empty." });
+		}
+
+		console.log(`🚀 ~ file: message.controller.ts:12 ~ sendMessage ~ text:`, text);
+
 		const senderId = req?.user?._id;
 
 		const conversationObjectId = new mongoose.Types.ObjectId(conversationId as string);
 
 		let conversation = await Conversation.findById(conversationObjectId);
-
+		
 		if (!conversation) {
 			return res.status(404).json({ error: "Conversation not found" });
 		}
@@ -39,14 +49,20 @@ async function sendMessage(req: any, res: Response) {
 			(participant) => participant?._id?.toString() !== senderId?.toString()
 		);
 
+		const finalMessgae =  await newMessage.populate({
+			path: 'senderId',
+			select: 'fullName email username profilePic _id'
+		})
+
 		//TODO: SOCKET UPDATE THE RECIPIENT
 
 		// const recipientSocketId = getRecipientSocketId(receiverId);
 		// if (recipientSocketId) {
 		// 	io.to(recipientSocketId).emit("newMessage", newMessage);
 		// }
+		
 
-		res.status(201).json({data: newMessage});
+		res.status(201).json({data: finalMessgae});
 	} catch (error: any) {
 		res.status(500).json({ error: error?.message });
 	}
@@ -61,7 +77,11 @@ async function getMessages(req: any, res: Response) {
 
 		const conversationPromise = Conversation.findById(conversationObjectId).populate({
             path: 'messages',
-            options: { sort: { 'createdAt': 1 } }
+			options: { sort: { 'createdAt': 1 } },
+			populate: {
+				path: 'senderId',
+				select: 'fullName email username profilePic _id'
+			}
         });
 
         const updateSeenStatusPromise = Message.updateMany(
@@ -82,7 +102,7 @@ async function getMessages(req: any, res: Response) {
 
 		//TODO: SOCKET UPDATE THE RECIPIENT
 		
-		// const messages = conversation.messages;
+		const messages = conversation.messages;
 		// Group messages by date
 		const messagesByDate = conversation.messages.reduce((groups:any, message:any) => {
 			const date = message?.createdAt?.toISOString().split('T')[0];

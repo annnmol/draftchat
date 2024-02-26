@@ -8,23 +8,25 @@ import { CheckCheck } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 
 interface Props {
-  chat: any;
-  selectedChat: boolean;
+  conversation: any;
+  isSelected: boolean;
+  handleClick:(conversation:any)=>void
 }
 
-export default function ChatCard({ chat, selectedChat = false }: Props) {
+export default function ChatCard({ conversation, isSelected = false,handleClick }: Props) {
   const { authUser } = useAuth();
-  const oppositeUser = chat?.participants?.[0];
-  const lastMessage = chat?.lastMessage;
+  const oppositeUser = conversation?.participants?.[0];
+  const lastMessage = conversation?.lastMessage;
   return (
     <Link
       to="#"
+      onClick={() => handleClick(conversation)}
       className={cn(
         buttonVariants({
-          variant: selectedChat ? "secondary" : "ghost",
+          variant: isSelected ? "secondary" : "ghost",
           size: "lg",
         }),
-        selectedChat &&
+        isSelected &&
           "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white shrink",
         "justify-start gap-4"
       )}

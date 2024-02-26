@@ -7,13 +7,14 @@ import { NetworkService } from "@/lib/network";
 
 const useSendMessage = () => {
 	const [loading, setLoading] = useState(false);
-	const setMessages = useStore(useShallow((state) => state.setMessages));
+	const addMessages = useStore(useShallow((state) => state.addMessages));
 
-	const sendMessage = async (message: any, id: string) => {
-		NetworkService.post(`/api/messages/send/${id}`, { message }).then((res: any) => {
-			console.log(`🚀 ~ file: useSendMessage.ts:16 ~ NetworkService.post ~ res:`, res);
+	const sendMessage = async (id: string, data: any) => {
+		setLoading(true);
+		
+		NetworkService.post(`/api/messages/send/${id}`, data).then((res: any) => {
 			if (res?.error) return handleError(res);
-			setMessages(res?.data);
+			addMessages(res?.data);
 		}).catch((error) => {
 			handleError(error);
 		}).finally(() => {

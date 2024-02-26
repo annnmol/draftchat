@@ -9,11 +9,11 @@ interface Props {}
 export default function ChatWrapper() {
   return (
     <div className="flex flex-col justify-between w-full h-full">
-      <ChatHeader />
+       <ChatHeader />
       <div className="w-full overflow-y-auto overflow-x-hidden h-full flex flex-col">
-      <ChatScreen />
-    <ChatInput />
-    </div>
+        <ChatScreen />
+        <ChatInput />
+      </div>
     </div>
   );
 }

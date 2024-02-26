@@ -8,6 +8,7 @@ import useGetConversations from "@/components/hooks/useGetConversations";
 import { useEffect } from "react";
 import useStore from "@/zustand";
 import { useShallow } from "zustand/react/shallow";
+import { LoadingSpinner } from "@/components/loader";
 
 
 interface SidebarProps {
@@ -18,6 +19,12 @@ const links = userData;
 export default function Sidebar({ isCollapsed }: SidebarProps) {
   const { getConversations, loading } = useGetConversations();
   const conversations = useStore(useShallow((state) => state.conversations));
+  const selectedConversation = useStore(useShallow((state) => state.selectedConversation));
+  const setSelectedConversation = useStore(useShallow((state) => state.setSelectedConversation));
+
+  const handleClick = (item:any) => {
+    setSelectedConversation(item);
+  }
 
   useEffect(() => {
     getConversations();
@@ -34,6 +41,9 @@ export default function Sidebar({ isCollapsed }: SidebarProps) {
         </div>
       )}
       <nav className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
+        {
+          loading && <LoadingSpinner/>
+        }
         {conversations?.length > 0 && conversations?.map((item:any, index:number) => {
           // if (isCollapsed) {
           //   return (
@@ -48,8 +58,9 @@ export default function Sidebar({ isCollapsed }: SidebarProps) {
           return (
             <ChatCard
               key={item?._id ?? index.toString()}
-              chat={item}
-              selectedChat={false}
+              conversation={item}
+              isSelected={selectedConversation?._id === item?._id}
+              handleClick={handleClick}
             />
           );
         })}

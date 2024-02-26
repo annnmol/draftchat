@@ -8,14 +8,14 @@ import { NetworkService } from "@/lib/network";
 
 const useGetMessages = () => {
 	const [loading, setLoading] = useState(false);
-	const setAllMessages = useStore(useShallow((state) => state.setAllMessages));
+	const setMessages = useStore(useShallow((state) => state.setMessages));
 
 	const getMessages = async (id: string) => {
 		setLoading(true);
 		NetworkService.get(`/api/messages/${id}`).then((res: any) => {
 			console.log(`🚀 ~ file: useGetMessages.ts:18 ~ NetworkService.get ~ res:`, res);
 			if (res?.error) return handleError(res);
-			setAllMessages(res?.data);
+			setMessages(res?.data);
 		}).catch((error) => {
 			handleError(error);
 		}).finally(() => {
