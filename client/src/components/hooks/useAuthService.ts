@@ -15,10 +15,10 @@ const useAuthService = () => {
             console.log(`🚀 ~ file: useAuthService.ts:24 ~ loginFn ~ data:`, res);
             if (res?.error) return handleError(res);
             // set cookies
-            handleAuthChange(res);
+            handleAuthChange(res?.data);
 
             toast.success("Logged In", {
-                description: res?.email ?? "",
+                description: res?.data?.email ?? "",
                 position: "top-center",
                 duration: 1500,
             });
@@ -37,10 +37,10 @@ const useAuthService = () => {
             console.log(`🚀 ~ file: useAuthService.ts:24 ~ signfn ~ data:`, res);
             if (res?.error) return handleError(res);
             // set cookies
-            handleAuthChange(res);
+            handleAuthChange(res?.data);
 
             toast.success("New Account created", {
-                description: res?.email ?? "",
+                description: res?.data?.email ?? "",
                 position: "top-center",
                 duration: 1500,
             });
@@ -59,7 +59,7 @@ const useAuthService = () => {
             console.log(`🚀 ~ file: useAuthService.ts:24 ~ logoutFn ~ data:`, res);
             if (res?.error) return handleError(res);
             // set cookies
-            handleAuthChange(res);
+            handleAuthChange(res?.data);
 
             toast.success("Logged out", {
                 description: "",

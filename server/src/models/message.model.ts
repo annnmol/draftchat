@@ -23,6 +23,10 @@ const messageSchema = new mongoose.Schema<IMessage>(
 	{ timestamps: true }
 );
 
+// Add indexes
+messageSchema.index({ conversationId: 1 });
+messageSchema.index({ _id: 1 })
+
 const Message = mongoose.model<IMessage>("Message", messageSchema);
 
 export default Message;

@@ -48,11 +48,7 @@ async function sendMessage(req: any, res: Response) {
 
 		if (newMessage) {
 			conversation.messages.push(newMessage._id);
-			conversation.lastMessage = {
-				text: text,
-				senderId: senderId,
-				seen: false,
-			};
+			conversation.lastMessage = newMessage._id;
 		}
 
 		await Promise.all([newMessage.save(),conversation.save()]);
@@ -64,7 +60,7 @@ async function sendMessage(req: any, res: Response) {
 		// 	io.to(recipientSocketId).emit("newMessage", newMessage);
 		// }
 
-		res.status(201).json(newMessage);
+		res.status(201).json({data: newMessage});
 	} catch (error: any) {
 		res.status(500).json({ error: error?.message });
 	}
@@ -98,21 +94,32 @@ async function getMessages(req: any, res: Response) {
             return res.status(404).json([]);
         }
 
-        //update the last message seen status
-        await conversation.updateOne({
-            lastMessage: {
-                ...conversation.lastMessage,
-                seen: true,
-            },
-        });
+        // //update the last message seen status
+        // await conversation.updateOne({
+        //     lastMessage: {
+        //         ...conversation.lastMessage,
+        //         seen: true,
+        //     },
+        // });
+		// Group messages by date
 
+	
 
 		//TODO: SOCKET UPDATE THE RECIPIENT
 
 
-        const messages = conversation.messages;
+		const messages = conversation.messages;
+		// const messagesByDate = conversation.messages.reduce((groups:any, message:any) => {
+		// 	const date = message?.createdAt?.toISOString().split('T')[0];
+		// 	if (!groups[date]) {
+		// 		groups[date] = [];
+		// 	}
+		// 	groups[date].push(message);
+		// 	return groups;
+		// }, {});
 
-		res.status(200).json(messages);
+		res.status(200).json({data: messages});
+		// res.status(200).json(messagesByDate);
 	} catch (error: any) {
 		res.status(500).json({ error: error?.message });
 	}

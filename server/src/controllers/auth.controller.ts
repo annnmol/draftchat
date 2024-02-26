@@ -51,11 +51,13 @@ let a = {
 			await newUser.save();
 
 			res.status(201).json({
-				_id: newUser._id.toString(),
-				fullName: newUser.fullName,
-				username: newUser.username,
-				profilePic: newUser.profilePic,
-				email: newUser.email,
+				data:{
+					_id: newUser._id.toString(),
+					fullName: newUser.fullName,
+					username: newUser.username,
+					profilePic: newUser.profilePic,
+					email: newUser.email,
+				}
 			});
 			
 		} else {
@@ -81,13 +83,13 @@ let a = {
 
 		generateTokenAndSetCookie(user._id.toString(), res);
 
-		res.status(200).json({
+		res.status(200).json({data:{
 			_id: user._id.toString(),
 			fullName: user.fullName,
 			username: user.username,
 			email: user.email,
 			profilePic: user.profilePic,
-		});
+		}});
 		
 	} catch (error) {
 		console.log("Error in login controller", error);

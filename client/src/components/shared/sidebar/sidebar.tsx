@@ -40,7 +40,7 @@ export default function Sidebar({ isCollapsed }: SidebarProps) {
         </div>
       )}
       <nav className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
-        {conversations?.map((item:any, index:number) => {
+        {conversations?.length > 0 && conversations?.map((item:any, index:number) => {
           // if (isCollapsed) {
           //   return (
           //     <ChatCardMobile

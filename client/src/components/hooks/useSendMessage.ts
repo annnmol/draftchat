@@ -13,7 +13,7 @@ const useSendMessage = () => {
 		NetworkService.post(`/api/messages/send/${id}`, { message }).then((res: any) => {
 			console.log(`🚀 ~ file: useSendMessage.ts:16 ~ NetworkService.post ~ res:`, res);
 			if (res?.error) return handleError(res);
-			setMessages(res);
+			setMessages(res?.data);
 		}).catch((error) => {
 			handleError(error);
 		}).finally(() => {

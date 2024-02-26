@@ -15,7 +15,7 @@ const useGetMessages = () => {
 		NetworkService.get(`/api/messages/${id}`).then((res: any) => {
 			console.log(`🚀 ~ file: useGetMessages.ts:18 ~ NetworkService.get ~ res:`, res);
 			if (res?.error) return handleError(res);
-			setAllMessages(res);
+			setAllMessages(res?.data);
 		}).catch((error) => {
 			handleError(error);
 		}).finally(() => {

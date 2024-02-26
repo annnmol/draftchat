@@ -11,6 +11,9 @@ async function getConversations(req: any, res: Response) {
 		const conversations = await Conversation.find({ participants: userObjectId }).populate({
 			path: "participants",
 			select: "fullName email username profilePic _id",
+		}).populate({
+			path: "lastMessage",
+			select: "text senderId seen mediaType updatedAt",
 		}).select("-messages");
 
 		// remove the current user from the participants array
@@ -20,7 +23,7 @@ async function getConversations(req: any, res: Response) {
 			);
 		});
 
-		res.status(200).json(conversations);
+		res.status(200).json({data: conversations});
 	} catch (error: any) {
 		res.status(500).json({ error: error?.message });
 	}
@@ -40,11 +43,7 @@ async function createConversation(req: any, res: Response) {
 			conversation = new Conversation({
 				participants: [senderId, receiverId],
 				messages: [],
-				lastMessage: {
-					senderId: senderId,
-					text: "",
-					seen: false,
-				}
+				lastMessage: undefined,
 			});
 			await conversation.save();
 		}
@@ -61,7 +60,7 @@ async function createConversation(req: any, res: Response) {
 
 		//TODO: SOCKET UPDATE THE RECIPIENT
 
-		res.status(200).json(conversation);
+		res.status(201).json({data: conversation});
 	} catch (error: any) {
 		res.status(500).json({ error: error?.message });
 	}
@@ -77,6 +76,9 @@ async function getConversation(req: any, res: Response) {
 		let conversation = await Conversation.findById(conversationObjectId).populate({
 			path: "participants",
 			select: "fullName email username profilePic _id",
+		}).populate({
+			path: "lastMessage",
+			select: "text senderId seen mediaType updatedAt",
 		}).select("-messages");
 
 		if (!conversation) {
@@ -88,7 +90,7 @@ async function getConversation(req: any, res: Response) {
 			(participant) => participant?._id?.toString() !== senderId?.toString()
 		);
 
-		res.status(200).json(conversation);
+		res.status(200).json({data: conversation});
 	} catch (error: any) {
 		res.status(500).json({ error: error?.message });
 	}
@@ -109,7 +111,7 @@ async function deleteConversation(req: any, res: Response) {
 
 		//TODO: SOCKET UPDATE THE RECIPIENT
 
-		res.status(200).json(conversation);
+		res.status(200).json({data: conversation});
 	} catch (error: any) {
 		res.status(500).json({ error: error?.message });
 	}

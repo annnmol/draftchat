@@ -13,7 +13,7 @@ const useGetConversations = () => {
 		NetworkService.get(`/api/conversations/me`).then((res: any) => {
 			// console.log(`🚀 ~ file: useGetConversations.ts:18 ~ NetworkService.get ~ res:`, res);
 			if (res?.error) return handleError(res);
-			setConversations(res);
+			setConversations(res?.data);
 		}).catch((error) => {
 			handleError(error);
 		}).finally(() => {

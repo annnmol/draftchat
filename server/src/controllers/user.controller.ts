@@ -13,7 +13,7 @@ const getUser = async (req: any, res: Response) => {
 			return res.status(400).json({ error: "no user found" });
 		}
 
-		res.status(200).json(user);
+		res.status(200).json({data: user});
 
 	} catch (error) {
 		console.log("Error in login controller", error);
@@ -30,7 +30,7 @@ const getAllUsers = async (req: any, res: Response) => {
 
 		const filteredUsers = await User.find({ _id: { $ne: objectId } }).select("-password");
 
-		res.status(200).json(filteredUsers);
+		res.status(200).json({data: filteredUsers});
 	} catch (error: any) {
 		console.error("Error in getAllUsers: ", error?.message);
 		res.status(500).json({ error: "Internal server error" });
@@ -40,7 +40,7 @@ const getAllUsers = async (req: any, res: Response) => {
 const getMyProfile = async (req: any, res: Response) => {
 	try {
 		const loggedInUser = req?.user;
-		res.status(200).json(loggedInUser);
+		res.status(200).json({data: loggedInUser});
 	} catch (error: any) {
 		console.error("Error in getMyProfile: ", error?.message);
 		res.status(500).json({ error: "Internal server error" });
