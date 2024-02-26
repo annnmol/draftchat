@@ -31,6 +31,7 @@ export const AuthContextProvider = ({ children }: PropsWithChildren) => {
   const [authUser, setAuthUser] = useState(parsedItem);
   
   const handleAuthChange = async (data: any) => {
+    console.log(`🚀 ~ file: auth-context.tsx:36 ~ handleAuthChange ~ data:`, data);
     if (data?._id) {
       data = JSON.stringify(data);
       localStorage.setItem(AUTH_USER_KEY, data ?? null);

@@ -1,26 +1,13 @@
-// import Conversation from "../models/conversationModel.js";
-// import Message from "../models/messageModel.js";
-// import { getRecipientSocketId, io } from "../socket/socket.js";
-// import { v2 as cloudinary } from "cloudinary";
-
 import { Response } from "express";
 import Conversation from "../models/conversation.model";
 import Message from "../models/message.model";
 import mongoose from "mongoose";
 
-let msg = {
-	"conversationId": "60f2a6c3d8b6c3f7f4c6f1e7",
-	"receiverId": "60f2a6c3d8b6c3f7f4c6f1e7",
-	"text": "Hello",
-	"mediaType": "image",
-	"mediaUrl": "https://res.cloudinary.com/dkkgmzj9d/image/upload/v1626622711/whatsapp-clone/whatsapp-clone-1626622710918.jpg",
-	"seen": false,
-}
-
 async function sendMessage(req: any, res: Response) {
 	try {
 		const { conversationId } = req?.params;
-		const { receiverId, text, mediaType, mediaUrl } = req.body;
+
+		const { text, mediaType, mediaUrl } = req.body;
 		const senderId = req?.user?._id;
 
 		const conversationObjectId = new mongoose.Types.ObjectId(conversationId as string);
@@ -31,19 +18,13 @@ async function sendMessage(req: any, res: Response) {
 			return res.status(404).json({ error: "Conversation not found" });
 		}
 
-		// if (img) {
-		// 	const uploadedResponse = await cloudinary.uploader.upload(img);
-		// 	img = uploadedResponse.secure_url;
-		// }
-
 		const newMessage = new Message({
 			conversationId: conversation?._id,
 			senderId: senderId,
-			receiverId: receiverId,
 			seen: false,
 			text: text,
-			mediaUrl: '',
-			mediaType: '',
+			mediaUrl: mediaUrl ?? "",
+			mediaType: mediaType ?? "",
 		});
 
 		if (newMessage) {
@@ -51,9 +32,14 @@ async function sendMessage(req: any, res: Response) {
 			conversation.lastMessage = newMessage._id;
 		}
 
-		await Promise.all([newMessage.save(),conversation.save()]);
+		await Promise.all([newMessage.save(), conversation.save()]);
+		
+		// remove the current user from the participants array
+		conversation.participants = conversation.participants.filter(
+			(participant) => participant?._id?.toString() !== senderId?.toString()
+		);
 
-				//TODO: SOCKET UPDATE THE RECIPIENT
+		//TODO: SOCKET UPDATE THE RECIPIENT
 
 		// const recipientSocketId = getRecipientSocketId(receiverId);
 		// if (recipientSocketId) {
@@ -81,7 +67,7 @@ async function getMessages(req: any, res: Response) {
         const updateSeenStatusPromise = Message.updateMany(
             {
                 conversationId: conversationObjectId,
-                receiverId: senderId,
+				senderId: { $ne: senderId },
                 seen: false,
             },
             { seen: true }
@@ -94,32 +80,21 @@ async function getMessages(req: any, res: Response) {
             return res.status(404).json([]);
         }
 
-        // //update the last message seen status
-        // await conversation.updateOne({
-        //     lastMessage: {
-        //         ...conversation.lastMessage,
-        //         seen: true,
-        //     },
-        // });
-		// Group messages by date
-
-	
-
 		//TODO: SOCKET UPDATE THE RECIPIENT
+		
+		// const messages = conversation.messages;
+		// Group messages by date
+		const messagesByDate = conversation.messages.reduce((groups:any, message:any) => {
+			const date = message?.createdAt?.toISOString().split('T')[0];
+			if (!groups[date]) {
+				groups[date] = [];
+			}
+			groups[date].push(message);
+			return groups;
+		}, {});
 
-
-		const messages = conversation.messages;
-		// const messagesByDate = conversation.messages.reduce((groups:any, message:any) => {
-		// 	const date = message?.createdAt?.toISOString().split('T')[0];
-		// 	if (!groups[date]) {
-		// 		groups[date] = [];
-		// 	}
-		// 	groups[date].push(message);
-		// 	return groups;
-		// }, {});
-
-		res.status(200).json({data: messages});
-		// res.status(200).json(messagesByDate);
+		res.status(200).json({data:messagesByDate});
+	
 	} catch (error: any) {
 		res.status(500).json({ error: error?.message });
 	}

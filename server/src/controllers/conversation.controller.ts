@@ -2,7 +2,7 @@ import { Response } from "express";
 import mongoose from "mongoose";
 import Conversation from "../models/conversation.model";
 
-async function getConversations(req: any, res: Response) {
+async function myConversations(req: any, res: Response) {
 	try {
 		const userId = req?.user?._id;
 
@@ -13,7 +13,7 @@ async function getConversations(req: any, res: Response) {
 			select: "fullName email username profilePic _id",
 		}).populate({
 			path: "lastMessage",
-			select: "text senderId seen mediaType updatedAt",
+			select: "text senderId seen mediaType",
 		}).select("-messages");
 
 		// remove the current user from the participants array
@@ -38,15 +38,17 @@ async function createConversation(req: any, res: Response) {
 			participants: { $all: [senderId, receiverId] },
 		});
 
-		if (!conversation) {
-			// create a new conversation
-			conversation = new Conversation({
-				participants: [senderId, receiverId],
-				messages: [],
-				lastMessage: undefined,
-			});
-			await conversation.save();
+		if (conversation) {
+			return res.status(200).json({data: conversation,message: "Conversation already exists"});
 		}
+
+					// create a new conversation
+					conversation = new Conversation({
+						participants: [senderId, receiverId],
+						messages: [],
+						lastMessage: undefined,
+					});
+					await conversation.save();
 
 		conversation = await conversation.populate({
 			path: "participants",
@@ -78,7 +80,7 @@ async function getConversation(req: any, res: Response) {
 			select: "fullName email username profilePic _id",
 		}).populate({
 			path: "lastMessage",
-			select: "text senderId seen mediaType updatedAt",
+			select: "text senderId seen mediaType",
 		}).select("-messages");
 
 		if (!conversation) {
@@ -117,5 +119,5 @@ async function deleteConversation(req: any, res: Response) {
 	}
 }
 
-export { createConversation, deleteConversation, getConversation, getConversations };
+export { createConversation, deleteConversation, getConversation, myConversations };
 
