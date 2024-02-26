@@ -17,13 +17,7 @@ const links = userData;
 
 export default function Sidebar({ isCollapsed }: SidebarProps) {
   const { getConversations, loading } = useGetConversations();
-  // const state = useStore<any>((state:any) => state.conversations);
   const conversations = useStore(useShallow((state) => state.conversations));
-
-
-
-	console.log(`🚀 ~ file: useGetConversations.ts:12 ~ useGetConversations ~ conversations:`,conversations );
-
 
   useEffect(() => {
     getConversations();

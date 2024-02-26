@@ -9,46 +9,49 @@ export interface IMessage {
     senderId: string;
     seen: boolean;
     shouldShake?: boolean;
-  }
+}
 
 export type StoreState = {
     conversations: any;
-    setConversations: (conversations: any) => void;
+    setConversations: (conversations: any[]) => void;
+    updateConversations: (conversations: any) => void;
+    AddConversations: (conversations: any) => void;
+
     selectedConversation: any;
     setSelectedConversation: (selectedConversation: any) => void;
-    messages: IMessage[];
-    setMessages: (messages: IMessage) => void;
-    setAllMessages: (messages: IMessage[]) => void;
+    messages: any[];
+    setMessages: (messages: any[]) => void;
+    AddMessages: (messages: any) => void;
     removesAllMessages: () => void;
     removeEverything: () => void,
 };
 
 const useStore = create<StoreState>((set) => ({
     conversations: [],
-    setConversations: (conversations: any) => set((prev) => {
-        if (Array.isArray(conversations) && conversations.length > 0) {
-            return (
-                {
-                    conversations: conversations
-                }
-            )
-        }
-        return (
-            {
-                conversations: [...prev.conversations, conversations]
-            }
-        )
-    }
-    ),
+    setConversations: (conversations: any) => set({ conversations }),
+    updateConversations: (conversation: any) => set((prev) => {
+        const id = conversation?.id;
+        if (!id) return prev;
+        const updatedConversations = prev.conversations.map((conv: any) =>
+            conv.id === id ? conversation : conv
+        );
+        return { conversations: updatedConversations };
+    }),
+
+    AddConversations: (conversations: any) => set((prev) => {
+        return { conversations: [conversations, ...prev.conversations] };
+    }),
+
     selectedConversation: null,
     setSelectedConversation: (selectedConversation: any) => set({ selectedConversation }),
+
     messages: [],
-    setMessages: (messages: IMessage) => set((prev) => ({
-        messages: [...prev.messages, messages],
-    })),
-    setAllMessages: (messages: IMessage[]) => set((prev) => ({
-        messages: messages,
-    })),
+    setMessages: (messages: any[]) => set({ messages }),
+    AddMessages: (messages: any[]) => set((prev) => {
+        return { messages: [...prev.messages, messages] };
+    }),
+
+    
     removesAllMessages: () => set({ messages: [] }),
     removeEverything: () => set({}, true)
 }));
