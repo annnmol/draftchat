@@ -1,7 +1,7 @@
 "use client";
 
 import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { cn, formatDateTime } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import ChatAvatar from "@/components/shared/chat/chat-avatar";
 import { CheckCheck } from "lucide-react";
@@ -17,6 +17,7 @@ export default function ChatCard({ conversation, isSelected = false,handleClick 
   const { authUser } = useAuth();
   const oppositeUser = conversation?.participants?.[0];
   const lastMessage = conversation?.lastMessage;
+  const updatedAt = formatDateTime(conversation?.updatedAt).dateTime;
   return (
     <Link
       to="#"
@@ -44,11 +45,12 @@ export default function ChatCard({ conversation, isSelected = false,handleClick 
               <CheckCheck
                 width={16}
                 className={lastMessage?.seen && "text-[blue]"}
-              />
-            ) : null}
+                />
+                ) : null}
             {lastMessage?.text}
           </span>
         )}
+        <span className="text-zinc-300 text-xs">{updatedAt}</span>
       </div>
     </Link>
   );

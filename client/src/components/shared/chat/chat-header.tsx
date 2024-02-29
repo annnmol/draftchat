@@ -9,6 +9,7 @@ import ChatAvatar from "@/components/shared/chat/chat-avatar";
 import useStore from "@/zustand";
 import { useShallow } from "zustand/react/shallow";
 import ChatHeaderInfo from "./chat-header-info";
+import { useSocket } from "@/context/use-socket";
 
 const TopbarIcons = [
   // { icon: Phone },
@@ -23,8 +24,10 @@ interface Props {}
 
 export default function ChatHeader() {
   const selectedConversation = useStore(useShallow((state) => state.selectedConversation));
+  const {onlineUsers} = useSocket();
   const oppositeUser = selectedConversation?.participants?.[0];
-  const lastActive = formatDateTime(selectedConversation?.updatedAt).dateTime;
+  // const lastActive = formatDateTime(selectedConversation?.updatedAt).dateTime;
+  const lastActive = onlineUsers?.includes(oppositeUser?._id) ? "Online" : "Offline";
   return (
     <>
       <div className="w-full h-20 flex p-4 justify-between items-center border-b">

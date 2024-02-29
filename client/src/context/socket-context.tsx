@@ -5,10 +5,19 @@ import { SERVER_BASE_URL } from "@/lib/network";
 // import useStore from "@/zustand";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import { useAuth } from "./auth-context";
+
+declare module "socket.io-client" {
+  export interface Socket {
+    sessionId?: string;
+    userId?: string;
+  }
+}
 
 const notificationSound = "/sounds/notification.mp3";
 
 const SOCKET_BASE_URL = SERVER_BASE_URL;
+const sessionID = localStorage.getItem("sessionID") as string ?? '';
 
 interface SocketProviderProps {
   children?: React.ReactNode;
@@ -26,8 +35,11 @@ export const SocketContext = React.createContext<ISocketContext>({
   socket: undefined,
 });
 
-export const SocketContextProvider: React.FC<SocketProviderProps> = ({ children }) => {
+export const SocketContextProvider: React.FC<SocketProviderProps> = ({
+  children,
+}) => {
   const [socket, setSocket] = useState<Socket | undefined>();
+  const { authUser } = useAuth();
   // const { setMessages } = useStore();
 
   // const [messages, setMessages] = useState<IMessage[]>([]);
@@ -45,38 +57,65 @@ export const SocketContextProvider: React.FC<SocketProviderProps> = ({ children 
   // const onOnlineUser = useCallback((data: any) => {
   //   setOnlineUsers(data);
   // }, []);
+  
+  useEffect(() => {
+    if (!authUser?._id) return;
+    const _socket: Socket = io(SOCKET_BASE_URL, {
+      
+      query: {
+        userId: authUser?._id,
+      },
+      auth: {
+        userId: authUser?._id,
+        sessionId: sessionID,
+      },
+      autoConnect: true,
+    });
 
-  // useEffect(() => {
-  //   const _socket: Socket = io(SOCKET_BASE_URL, {
-  //     query: {
-  //       userId: "123",
-  //     },
-  //   });
-
-  //   setSocket(_socket);
+    const onOnlineUser = (data: any) => {
+      setOnlineUsers(data);
+    };
 
 
-  //   const onOnlineUser = (data: any) => {
-  //     console.log(`🚀 ~ file: socket-context.tsx:84 ~ onOnlineUser ~ data:`, data);
-  //     // setOnlineUsers(data);
-  //   };
+    _socket.on("connect", () => {
+     setSocket(_socket);
+      console.warn(`:incoming event: [connect] --->`, _socket);
+    });
 
-  //   _socket.on("getOnlineUsers", onOnlineUser);
+    _socket.on("connect_error", (err) => {
+      if (err.message === "invalid user id") {
+        console.warn(`:incoming event: [connect_error] --->`, err);
+      }
+    });
 
-  //   //** SOCKET DEBUGGING **//
-  //   _socket.onAnyOutgoing((event, ...args) => {
-  //     console.warn(`:outgoing event: [${event}] --->`, args?.[0]);
-  //   });
-  //   _socket.onAny((event, ...args) => {
-  //     console.warn(`:incoming event: [${event}] --->`, args?.[0]);
-  //   });
+    _socket.on("session", (data: any) => {
+       // attach the session ID to the next reconnection attempts
+      _socket.auth = { sessionID };
+      // store it in the localStorage
+      localStorage.setItem("sessionID", data?.sessionId as string);
+      // save the ID of the user
+      _socket.userId = data?.userId as string;
+      setSocket(_socket);
+     });
 
-  //   return () => {
-  //     _socket.off("getOnlineUsers", onOnlineUser);
-  //     _socket.disconnect();
-  //     setSocket(undefined);
-  //   };
-  // }, []);
+    //gettting the online users
+    _socket.on("getOnlineUsers", onOnlineUser);
+
+
+    //** SOCKET DEBUGGING **//
+    _socket.onAnyOutgoing((event, ...args) => {
+      console.warn(`:outgoing event: [${event}] --->`, args?.[0]);
+    });
+    _socket.onAny((event, ...args) => {
+      console.warn(`:incoming event: [${event}] --->`, args?.[0]);
+    });
+
+    return () => {
+      _socket.off("getOnlineUsers", onOnlineUser);
+      _socket.disconnect();
+      setSocket(undefined);
+    };
+  }, [authUser]);
 
   return (
     <SocketContext.Provider value={{ emitSocketEvent, socket, onlineUsers }}>
@@ -85,8 +124,3 @@ export const SocketContextProvider: React.FC<SocketProviderProps> = ({ children 
   );
 };
 
-
-export const useSocket = () => {
-  const state = useContext(SocketContext);
-  return state ?? undefined;
-};

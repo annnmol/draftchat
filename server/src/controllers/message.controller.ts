@@ -2,6 +2,8 @@ import { Response } from "express";
 import Conversation from "../models/conversation.model";
 import Message from "../models/message.model";
 import mongoose from "mongoose";
+import { io } from "..";
+import { getReceiverSocketId } from "../socket/socket";
 
 async function sendMessage(req: any, res: Response) {
 	try {
@@ -9,14 +11,9 @@ async function sendMessage(req: any, res: Response) {
 
 		const { text, mediaType, mediaUrl } = req.body;
 
-		console.log(`🚀 ~ file: message.controller.ts:12 ~ sendMessage ~ text:`, text);
-
-
 		if (!text && !mediaUrl) {
 			return res.status(400).json({ error: "message cannot be empty." });
 		}
-
-		console.log(`🚀 ~ file: message.controller.ts:12 ~ sendMessage ~ text:`, text);
 
 		const senderId = req?.user?._id;
 
@@ -49,17 +46,20 @@ async function sendMessage(req: any, res: Response) {
 			(participant) => participant?._id?.toString() !== senderId?.toString()
 		);
 
+		console.log(`🚀 ~ file: message.controller.ts:49 ~ sendMessage ~ conversation.participants:`, conversation.participants);
+
+
 		const finalMessgae =  await newMessage.populate({
 			path: 'senderId',
 			select: 'fullName email username profilePic _id'
 		})
 
 		//TODO: SOCKET UPDATE THE RECIPIENT
-
-		// const recipientSocketId = getRecipientSocketId(receiverId);
-		// if (recipientSocketId) {
-		// 	io.to(recipientSocketId).emit("newMessage", newMessage);
-		// }
+		const receiverId = conversation.participants[0]?._id?.toString();
+		const receiverSocketId = getReceiverSocketId(receiverId);
+		if (receiverSocketId) {
+			io.to(receiverSocketId).emit("newMessage", newMessage);
+		}
 		
 
 		res.status(201).json({data: finalMessgae});

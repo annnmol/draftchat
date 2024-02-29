@@ -6,7 +6,9 @@ const Providers = ({ children }: PropsWithChildren) => {
   return (
     <>
       <AuthContextProvider>
-        <SocketContextProvider>{children}</SocketContextProvider>
+        {/* <SocketContextProvider> */}
+          {children}
+        {/* </SocketContextProvider> */}
       </AuthContextProvider>
     </>
   );

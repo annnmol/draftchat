@@ -29,7 +29,7 @@ export const AuthContextProvider = ({ children }: PropsWithChildren) => {
   const navigate = useNavigate(); 
 
   const [authUser, setAuthUser] = useState(parsedItem);
-  
+
   const handleAuthChange = async (data: any) => {
     console.log(`🚀 ~ file: auth-context.tsx:36 ~ handleAuthChange ~ data:`, data);
     if (data?._id) {

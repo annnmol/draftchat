@@ -14,10 +14,8 @@ const middleware = async (
   try {
     const token = req.cookies.jwt;
 
-    console.log(`🚀 ~ file: middleware.ts:17 ~ req.cookies:`, req.cookies);
-
-
     if (!token) {
+      res.cookie("jwt", "", { maxAge: 0 });
       return res.status(401).json({ error: "Unauthorized - No Token Provided" });
     }
 
@@ -29,14 +27,13 @@ const middleware = async (
 
     const user = await getUserByUserId(decoded.userId);
 
-    console.log(`🚀 ~ file: middleware.ts:28 ~ user:`, user);
-
-
     if (!user) {
+      res.cookie("jwt", "", { maxAge: 0 });
       return res.status(404).json({ error: "User not found" });
     }
 
     req.user = user;
+    
     next();
   } catch (error: any) {
     console.log("Error in middleware: ", error?.message);

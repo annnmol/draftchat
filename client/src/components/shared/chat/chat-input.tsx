@@ -10,7 +10,7 @@ import {
   Smile,
   ThumbsUp,
 } from "lucide-react";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 // import { AnimatePresence, motion } from "framer-motion";
 import { loggedInUserData, Message } from "@/lib/dummy-data";
@@ -26,7 +26,7 @@ import { Link } from "react-router-dom";
 import useSendMessage from "@/components/hooks/useSendMessage";
 import useStore from "@/zustand";
 import { useShallow } from "zustand/react/shallow";
-import ImagePicker from "@/components/ui/image-picker";
+import FilePicker from "@/components/ui/file-picker";
 
 interface Props {}
 
@@ -47,17 +47,6 @@ export default function ChatInput() {
     setMessage(event.target.value);
   };
 
-  const handleThumbsUp = () => {
-    const newMessage: Message = {
-      id: message.length + 1,
-      name: loggedInUserData.name,
-      avatar: loggedInUserData.avatar,
-      message: "👍",
-    };
-    // sendMessage(newMessage);
-    setMessage("");
-  };
-
   const handleSendMessage = async () => {
     if (message.trim() && selectedConversation?._id) {
       const newMessage = {
@@ -65,7 +54,7 @@ export default function ChatInput() {
       };
 
       sendMessage(selectedConversation?._id, newMessage).finally(() => {
-        setMessage("");
+      setMessage("");
         if (inputRef.current) {
           inputRef.current.focus();
         }
@@ -85,41 +74,13 @@ export default function ChatInput() {
     }
   };
 
-  //   const handleSendMessage = () => {
-  //     // Access the current property of the inputRef to get the input element
-  //     const inputValue = inputRef.current?.value ?? "";
-
-  //     if (!inputValue.trim()) return;
-
-  //     let data = {
-  //       id: nanoid(),
-  //       session_id: "1",
-  //       type: "text",
-  //       value: inputValue,
-  //       mediaUrl: "aa",
-  //       senderId: "123",
-  //       seen: false,
-  //     };
-  //     emitSocketEvent(SOCKET_CONNECTION_TYPES.AGENT_CHAT, data);
-
-  //     // Set the input value to an empty string to clear it
-  //     if (inputRef.current) {
-  //       inputRef.current.value = "";
-  //       inputRef.current?.focus();
-  //     }
-  //   };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent the default form submission behavior
-    handleSendMessage();
-  };
 
   return (
     <>
       <div className="p-2 flex justify-between w-full items-center gap-2">
         <div className="flex">
-          <ImagePicker/>
-          <Link
+          <FilePicker />
+          {/* <Link
             to="#"
             className={cn(
               buttonVariants({ variant: "ghost", size: "icon" }),
@@ -128,7 +89,7 @@ export default function ChatInput() {
             )}
           >
             <Paperclip size={20} className="text-muted-foreground" />
-          </Link>
+          </Link> */}
         </div>
         <div key="input" className="w-full relative">
           <Textarea
@@ -154,7 +115,12 @@ export default function ChatInput() {
           </div>
         </div>
 
-        <Button disabled={loading} onClick={handleSendMessage} variant="ghost" size="icon">
+        <Button
+          disabled={loading}
+          onClick={handleSendMessage}
+          variant="ghost"
+          size="icon"
+        >
           {loading ? (
             <Loader2 size={20} className={"text-primary/60 animate-spin"} />
           ) : (

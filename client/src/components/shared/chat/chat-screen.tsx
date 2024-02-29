@@ -6,6 +6,10 @@ import { useShallow } from "zustand/react/shallow";
 import useGetMessages from "@/components/hooks/useGetMessages";
 import { useAuth } from "@/context/auth-context";
 import ChatSkeleton from "./chat-skeleton";
+import useListenMessages from "@/components/hooks/useListenMessages";
+
+const IMAGE_NOT_FOUND = "https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png";
+const fake_image = "https://images.unsplash.com/photo-1593466144596-8abd50ad2c52?q=80&w=1934&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
 
 interface Props {}
 
@@ -18,8 +22,10 @@ export default function ChatScreen() {
   );
   const messages = useStore(useShallow((state) => state.messages));
 
-  const { getMessages, loading } = useGetMessages();
   const { authUser } = useAuth();
+  const { getMessages, loading } = useGetMessages();
+  useListenMessages()
+  
 
   useEffect(() => {
     if (selectedConversation?._id) {
@@ -36,7 +42,7 @@ export default function ChatScreen() {
       messagesContainerRef.current.scrollTop =
         messagesContainerRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, imgLoaded]);
 
   return (
     <>
@@ -46,6 +52,9 @@ export default function ChatScreen() {
       >
         {loading && <ChatSkeleton />}
         {Object.entries(messages)?.map(([date, dateWiseMessages]: any) => {
+
+          // console.log(`🚀 ~ file: chat-screen.tsx:50 ~ {Object.entries ~ date:`, date);
+
           return (
             <div key={date} className="w-full h-full  ">
               <div className="w-full flex justify-center align-middle relative">
@@ -65,13 +74,12 @@ export default function ChatScreen() {
                 dateWiseMessages?.map((message: any, index: number) => {
                   const isUserMessage =
                     message?.senderId?._id === authUser?._id ?? false;
-                  const isImageMessage =
-                    message?.mediaType === "image" ? true : false;
+
                   return (
                     <div
                       key={index}
                       className={cn(
-                        "flex flex-col gap-2 p-4 whitespace-pre-wrap",
+                        "flex flex-col gap-2 p-4 whitespace-pre-wrap min-h-[72px]",
                         isUserMessage ? "items-end" : "items-start"
                       )}
                     >
@@ -86,13 +94,16 @@ export default function ChatScreen() {
                           name={message?.senderId?.fullName}
                         />
                         <span className=" bg-accent p-2 rounded-md max-w-xs flex flex-col gap-2">
-                          {isImageMessage ? (
+                          { message?.mediaType === "image" && message?.mediaUrl?.length > 0 ? (
                             <img
                               src={(message?.mediaUrl as string) ?? undefined}
                               // hidden
                               onLoad={() => setImgLoaded(true)}
                               alt="Message image"
                               className="rounded-md"
+                              onError={(e:any) => 
+                              e.target.src = IMAGE_NOT_FOUND
+                              }
                             />
                           ) : null}
 

@@ -10,7 +10,7 @@ import cookieParser from "cookie-parser";
 //user defined imports
 import { errorHandlingLogging, healthCheckLogging, incomingRequestLogging } from './lib/utils';
 import { SOCKET_DEFAULT_OPTIONS } from './socket/contants';
-import socketIOMiddleware from './middleware/socketMiddleware';
+import socketIOMiddleware from './socket/socket-middleware';
 import apiMiddleware from './middleware/middleware';
 import conversationRouter from "./routes/conversation.routes";
 import { initializeSocketIO } from './socket/socket';
@@ -50,6 +50,8 @@ app.set("io", io);
 io.use((socket, next) => {
     socketIOMiddleware(socket, next);
 });
+initializeSocketIO(io);
+
 
 /** Log the incoming request */
 app.use(incomingRequestLogging);
@@ -77,7 +79,6 @@ httpServer.listen(PORT, () => {
     connectToMongoDB();
     console.info(`Server is running at PORT: ${PORT}`);
     // Start the server and initialize Socket.IO
-    // initializeSocketIO(io);
 });
 
 // export default app;

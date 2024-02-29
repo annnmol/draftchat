@@ -13,7 +13,7 @@ const useGetMessages = () => {
 	const getMessages = async (id: string) => {
 		setLoading(true);
 		NetworkService.get(`/api/messages/${id}`).then((res: any) => {
-			console.log(`🚀 ~ file: useGetMessages.ts:18 ~ NetworkService.get ~ res:`, res);
+			// console.log(`🚀 ~ file: useGetMessages.ts:18 ~ NetworkService.get ~ res:`, res);
 			if (res?.error) return handleError(res);
 			setMessages(res?.data);
 		}).catch((error) => {
