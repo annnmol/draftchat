@@ -70,6 +70,7 @@ export const SocketContextProvider: React.FC<SocketProviderProps> = ({
         sessionId: sessionID,
       },
       autoConnect: true,
+      transports: ["websocket"],
     });
 
     const onOnlineUser = (data: any) => {
