@@ -19,6 +19,7 @@ import useStore from "@/zustand";
 import { useShallow } from "zustand/react/shallow";
 import useSendMessage from "../hooks/useSendMessage";
 import {NetworkService } from "@/lib/network";
+import { toast } from "sonner";
 
 function FilePicker() {
   const selectedConversation = useStore(
@@ -36,13 +37,19 @@ function FilePicker() {
     const newFile = e?.target?.files?.[0] ?? null;
 
     if (newFile) {
-      const maxFileSizeMB = 5;
+      const maxFileSizeMB = 10;
       const maxFileSizeBytes = maxFileSizeMB * 1024 * 1024;
 
       if (newFile?.size > maxFileSizeBytes) {
         console.error(`File size exceeds the limit of ${maxFileSizeMB}MB.`);
         setFile(null);
         setMediaType(undefined);
+        setFile(undefined);
+        toast.error("File Error", {
+          description: `File size exceeds the limit of ${maxFileSizeMB}MB.`,
+          position: "top-center",
+          duration: 1500,
+      });
         return;
       }
 
@@ -100,9 +107,19 @@ function FilePicker() {
         .then((res) => {
           newMessage.mediaUrl = res;
           sendMessage(selectedConversation?._id, newMessage);
+          toast.success("File sent", {
+            description: ``,
+            position: "top-center",
+            duration: 1000,
+        });
         })
         .catch((err) => {
           console.error("Error uploading file", err);
+          toast.error("Error uploading file", {
+            description: `Please try again.`,
+            position: "top-center",
+            duration: 1000,
+        });
         })
         .finally(() => {
           handleCancel();
@@ -129,9 +146,9 @@ function FilePicker() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Upload Image</DialogTitle>
+          <DialogTitle>Upload Media</DialogTitle>
           <DialogDescription>
-            Select the image from your system. Click save when you're done.
+            Select the file from your system. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
