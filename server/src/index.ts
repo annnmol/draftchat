@@ -1,7 +1,7 @@
 import express from 'express';
 import http from "node:http";
 import cors from 'cors';
-import {config} from 'dotenv';
+import { config } from 'dotenv';
 import bodyParser from 'body-parser';
 import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
@@ -30,8 +30,8 @@ const app = express();
 const httpServer = http.createServer(app);
 
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
-    credentials: true,
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  credentials: true,
 }));
 app.use(express.json()); // to parse the incoming requests with JSON payloads (from req.body)
 app.use(bodyParser.json()); //
@@ -39,41 +39,38 @@ app.use(cookieParser()); // to parse the incoming requests with cookies
 
 //* intialize socket socket server *//
 const io = new Server(httpServer, {
-    pingTimeout: 60000,
-    cors: {
-      origin: "*",
-      credentials: true
-    },
-  // Attach the Socket.IO server to the Redis adapter
-    adapter: createAdapter(redisPubClient, redisSubClient)
-  });
+  pingTimeout: 60000,
+  cors: {
+    origin: "*",
+    credentials: true
+  },
+  //* Redis Adapter for Socket.IO *//
+  adapter: createAdapter(redisPubClient, redisSubClient)
+});
 
 //* using set method to mount the `io` instance on the app to avoid usage of `global` variable
 app.set("io", io);
 
 // Apply Socket.IO middleware
 io.use((socket, next) => {
-    socketIOMiddleware(socket, next);
+  socketIOMiddleware(socket, next);
 });
 
 //ATTACH SOCKET ADMIN UI
 instrument(io, {
-    auth: {
-      type: "basic",
-      username: process.env.SOCKET_ADMIN_USERNAME,
-      password: process.env.SOCKET_ADMIN_PASSWORD
-    },
-    mode: "development",
-  });
-  
-  // Serve the Socket.IO Admin UI on the /admin-ui/socket endpoint
- app.use("/admin-ui/socket", express.static("./node_modules/@socket.io/admin-ui/ui/dist"));
+  auth: {
+    type: "basic",
+    username: process.env.SOCKET_ADMIN_USERNAME,
+    password: process.env.SOCKET_ADMIN_PASSWORD
+  },
+  mode: "development",
+});
+
+// Serve the Socket.IO Admin UI on the /admin-ui/socket endpoint
+app.use("/admin-ui/socket", express.static("./node_modules/@socket.io/admin-ui/ui/dist"));
 
 /** Log the incoming request */
 app.use(incomingRequestLogging);
-
-//* Redis Adapter for Socket.IO *//
-io.adapter(createAdapter(redisPubClient, redisSubClient));
 
 // Health check endpoint
 app.get("/api/health-check", healthCheckLogging);
@@ -84,20 +81,20 @@ app.use("/api/auth", authRouter);
 //protected routes
 app.use(middleware)
 app.use("/api/users", userRouter);
-app.use("/api/conversations",conversationRouter);
-app.use("/api/messages",messageRouter);
+app.use("/api/conversations", conversationRouter);
+app.use("/api/messages", messageRouter);
 
 /** Route Error handling */
 app.use(errorHandlingLogging);
 
+connectToMongoDB();
 
 //app start
 httpServer.listen(PORT, () => {
-    connectToMongoDB();
-    console.info(`Server is running at PORT: ${PORT}`);
-    // Start the server and initialize Socket.IO
-    initializeSocketIO(io);
+  console.info(`Server is running at PORT: ${PORT}`);
+  // Start the server and initialize Socket.IO
+  initializeSocketIO(io);
 });
 
 // export default app;
-export { io, httpServer, app}
+export { io, httpServer, app }

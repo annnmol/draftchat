@@ -7,6 +7,8 @@ const REDIS_PORT = Number(process.env.REDIS_PORT) ?? 6379;
 const REDIS_USERNAME = process.env.REDIS_USERNAME ?? "";
 const REDIS_PASSWORD = process.env.REDIS_PASSWORD ?? "";
 
+const SESSION_TTL = 24 * 60 * 60;
+
 const redisPubClient = new Redis({
     host: REDIS_HOST,
     port: REDIS_PORT,
@@ -38,39 +40,131 @@ const redisSubClient = redisPubClient.duplicate({
     .on("end", () => { console.log("Redis Sub End"); })
     .on("reconnecting", () => { console.log("Redis Sub reconnecting"); })
 
-// Export the pubClient and subClient
-export { redisPubClient, redisSubClient };
-
-
-class RedisManager {
-    hostname: any = null;
-    port: any = null;
-    redis_host: any = null;
-    constructor() {
-        console.log("redisPubClient.isReady", redisPubClient.status)
-        console.log("redisSubClient.isReady", redisPubClient.status)
+    function mapSession(session: any) {
+        let username, connected;
+    
+        if (Array.isArray(session)) {
+            [username, connected] = session;
+        } else if (typeof session === 'object' && session !== null) {
+            ({ username, connected } = session);
+        } else {
+            throw new TypeError('Session must be an array or an object');
+        }
+    
+        if (typeof username !== 'string' || typeof connected !== 'string') {
+            throw new TypeError('Username and connected must be strings');
+        }
+    
+        return {
+            username,
+            connected: connected === 'true',
+        };
     }
 
-    async get(query: string) {
-        if (redisPubClient?.status !== "ready") return null
 
-        const sessionObj = await redisPubClient.get(query);
-        return sessionObj;
+
+class RedisSessionStore {
+
+    async get(query: string) {
+        const data = await redisPubClient.get(query);
+        return data;
 
     }
 
     async set(key: string, data: any, expiry: any = null) {
-        if (redisPubClient?.status !== "ready") return null
-
         if (expiry) {
-            await redisPubClient.set(key, data, "EX", 60 * 60 * 24 * expiry);
-            return true;
-
+            redisPubClient.set(key, data, "EX", 60 * 60 * 24 * expiry);
         } else {
-            await redisPubClient.set(key, data);
-            return true;
+            redisPubClient.set(key, data);
         }
+    }
+
+    public async findSession(id: string) {
+        return await redisPubClient
+            .hmget(`session:${id}`, "username", "connected")
+            .then(mapSession);
+    }
+
+    public async saveSession(id: string, { username, connected }: any) {
+        try {
+            await redisPubClient
+                .multi()
+                .hset(
+                    `session:${id}`,
+                    "username",
+                    username,
+                    "connected",
+                    connected
+                )
+                .expire(`session:${id}`, SESSION_TTL)
+                .exec();
+
+        } catch (err) {
+            console.error("Error saving session", err);
+        }
+    }
+
+    // public async findAllSessions() {
+    //     const keys = new Set();
+    //     let nextIndex = 0;
+    //     do {
+    //         const [nextIndexAsStr, results] = await redisPubClient.scan(
+    //             nextIndex,
+    //             "MATCH",
+    //             "session:*",
+    //             "COUNT",
+    //             "100"
+    //         );
+    //         nextIndex = parseInt(nextIndexAsStr, 10);
+    //         results.forEach((s: any) => keys.add(s));
+    //     } while (nextIndex !== 0);
+    //     const commands: any = [];
+    //     keys.forEach((key) => {
+    //         commands.push(["hmget", key, "username", "connected"]);
+    //     });
+    //     return await redisPubClient
+    //         .multi(commands)
+    //         .exec()
+    //         .then((results: any) => {
+    //             return results
+    //                 .map(([err, session]: any) => (err ? undefined : mapSession(session)))
+    //                 .filter((v: any) => !!v);
+    //         });
+    // }
+
+    public async findAllSessions() {
+        const keys = new Set();
+        let nextIndex = 0;
+        do {
+            const [nextIndexAsStr, results] = await redisPubClient.scan(
+                nextIndex,
+                "MATCH",
+                "session:*",
+                "COUNT",
+                "100"
+            );
+            nextIndex = parseInt(nextIndexAsStr, 10);
+            results.forEach((s: any) => keys.add(s));
+        } while (nextIndex !== 0);
+
+        const sessions = [];
+        for (let key of keys) {
+            try {
+                const session = await redisPubClient.hgetall(key as string);
+                if (session.username) {
+                    sessions.push(mapSession(session));
+                }
+            } catch (err) {
+                console.error("Error getting session", err);
+            }
+        }
+        return sessions;
     }
 }
 
-export default RedisManager;
+
+
+const redisSessionStore = new RedisSessionStore();
+
+// Export the pubClient and subClient and the sessionStore
+export { redisPubClient, redisSubClient, redisSessionStore };

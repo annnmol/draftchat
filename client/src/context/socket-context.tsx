@@ -1,20 +1,16 @@
 "use client";
 
 import { SERVER_BASE_URL } from "@/lib/network";
-// import { SOCKET_CONNECTION_TYPES } from "@/lib/enum";
-// import useStore from "@/zustand";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "./auth-context";
 
 declare module "socket.io-client" {
   export interface Socket {
     sessionId?: string;
-    userId?: string;
+    username?: string;
   }
 }
-
-const notificationSound = "/sounds/notification.mp3";
 
 const SOCKET_BASE_URL = SERVER_BASE_URL;
 const sessionID = localStorage.getItem("sessionID") as string ?? '';
@@ -40,9 +36,6 @@ export const SocketContextProvider: React.FC<SocketProviderProps> = ({
 }) => {
   const [socket, setSocket] = useState<Socket | undefined>();
   const { authUser } = useAuth();
-  // const { setMessages } = useStore();
-
-  // const [messages, setMessages] = useState<IMessage[]>([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
 
   const emitSocketEvent: ISocketContext["emitSocketEvent"] = useCallback(
@@ -53,20 +46,11 @@ export const SocketContextProvider: React.FC<SocketProviderProps> = ({
     },
     [socket]
   );
-
-  // const onOnlineUser = useCallback((data: any) => {
-  //   setOnlineUsers(data);
-  // }, []);
-  
   useEffect(() => {
     if (!authUser?._id) return;
     const _socket: Socket = io(SOCKET_BASE_URL, {
-      
-      query: {
-        userId: authUser?._id,
-      },
       auth: {
-        userId: authUser?._id,
+        username: authUser?._id,
         sessionId: sessionID,
       },
       autoConnect: true,
@@ -95,7 +79,7 @@ export const SocketContextProvider: React.FC<SocketProviderProps> = ({
       // store it in the localStorage
       localStorage.setItem("sessionID", data?.sessionId as string);
       // save the ID of the user
-      _socket.userId = data?.userId as string;
+      _socket.username = data?.username as string;
       setSocket(_socket);
      });
 

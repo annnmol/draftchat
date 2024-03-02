@@ -115,7 +115,7 @@ export default function ChatScreen() {
                                     (message?.mediaUrl as string) ?? undefined
                                   }
                                   onLoad={() => setImgLoaded((prev) => !prev)}
-                                  className="rounded-md w-full min-w-[300px] max-h-[300px] object-cover"
+                                  className="rounded-md w-full min-w-[200px] max-h-[300px] object-cover"
                                   controls
                                   
                                 />
