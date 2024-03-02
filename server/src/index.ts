@@ -20,6 +20,8 @@ import authRouter from './routes/auth.routes';
 import userRouter from './routes/user.routes';
 import middleware from './middleware/middleware';
 import messageRouter from './routes/message.routes';
+import path from 'path';
+// const __dirname = path.resolve();
 
 
 dotenv.config();
@@ -64,6 +66,13 @@ app.get("/api/health-check", healthCheckLogging);
 
 // routes
 app.use("/api/auth", authRouter);
+
+app.use(express.static(path.join(__dirname, "/client/dist")));
+
+app.get("*", (req, res) => {
+	res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+});
+
 //protected routes
 app.use(middleware)
 app.use("/api/users", userRouter);
