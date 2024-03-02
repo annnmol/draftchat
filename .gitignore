@@ -9,6 +9,7 @@ lerna-debug.log*
 
 server/dist
 client/dist
+
 dist
 
 node_modules

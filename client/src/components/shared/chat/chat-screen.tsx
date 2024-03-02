@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { useEffect, useRef, useState } from "react";
+import {useEffect, useRef, useState } from "react";
 import ChatAvatar from "@/components/shared/chat/chat-avatar";
 import useStore from "@/zustand";
 import { useShallow } from "zustand/react/shallow";
@@ -8,8 +8,10 @@ import { useAuth } from "@/context/auth-context";
 import ChatSkeleton from "./chat-skeleton";
 import useListenMessages from "@/components/hooks/useListenMessages";
 
-const IMAGE_NOT_FOUND = "https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png";
-const fake_image = "https://images.unsplash.com/photo-1593466144596-8abd50ad2c52?q=80&w=1934&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+const IMAGE_NOT_FOUND =
+  "https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png";
+const fake_image =
+  "https://images.unsplash.com/photo-1593466144596-8abd50ad2c52?q=80&w=1934&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
 interface Props {}
 
@@ -24,8 +26,7 @@ export default function ChatScreen() {
 
   const { authUser } = useAuth();
   const { getMessages, loading } = useGetMessages();
-  useListenMessages()
-  
+  useListenMessages();
 
   useEffect(() => {
     if (selectedConversation?._id) {
@@ -52,12 +53,9 @@ export default function ChatScreen() {
       >
         {loading && <ChatSkeleton />}
         {Object.entries(messages)?.map(([date, dateWiseMessages]: any) => {
-
-          // console.log(`🚀 ~ file: chat-screen.tsx:50 ~ {Object.entries ~ date:`, date);
-
           return (
-            <div key={date} className="w-full h-full  ">
-              <div className="w-full flex justify-center align-middle relative">
+            <div key={date} className="flex flex-col gap-1">
+              <div className="w-full flex justify-center align-middle relative my-1">
                 <div
                   aria-hidden="true"
                   className="absolute inset-0 flex items-center"
@@ -79,36 +77,37 @@ export default function ChatScreen() {
                     <div
                       key={index}
                       className={cn(
-                        "flex flex-col gap-2 p-4 whitespace-pre-wrap min-h-[72px]",
-                        isUserMessage ? "items-end" : "items-start"
+                        "flex whitespace-pre-wrap min-h-[40px] px-2 py-1 overflow-hidden",
+                        isUserMessage ? "justify-end" : "justify-start"
                       )}
                     >
                       <div
                         className={cn(
-                          "flex gap-3 items-end",
+                          "flex gap-3 items-end max-w-[60%] h-[200px !important]",
                           isUserMessage ? "flex-row-reverse" : "flex-row"
                         )}
                       >
                         <ChatAvatar
                           src={message?.senderId?.profilePic}
                           name={message?.senderId?.fullName}
+                          className="w-8 h-8"
                         />
-                        <span className=" bg-accent p-2 rounded-md max-w-xs flex flex-col gap-2">
-                          { message?.mediaType === "image" && message?.mediaUrl?.length > 0 ? (
+                        <div className="bg-accent p-2 rounded-md max-w-xs flex flex-col gap-2">
+                          {message?.mediaType === "image" &&
+                          message?.mediaUrl?.length > 0 ? (
                             <img
                               src={(message?.mediaUrl as string) ?? undefined}
-                              // hidden
-                              onLoad={() => setImgLoaded(true)}
-                              alt="Message image"
-                              className="rounded-md"
-                              onError={(e:any) => 
-                              e.target.src = IMAGE_NOT_FOUND
+                              onLoad={() => setImgLoaded((prev)=>!prev)}
+                              alt="Message_image"
+                              className="rounded-md w-full max-h-[300px] object-cover"
+                              onError={(e: any) =>
+                                (e.target.src = IMAGE_NOT_FOUND)
                               }
                             />
                           ) : null}
 
                           {message.text}
-                        </span>
+                        </div>
                       </div>
                     </div>
                   );

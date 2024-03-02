@@ -18,6 +18,7 @@ import { Loader2, Paperclip } from "lucide-react";
 import useStore from "@/zustand";
 import { useShallow } from "zustand/react/shallow";
 import useSendMessage from "../hooks/useSendMessage";
+import {NetworkService } from "@/lib/network";
 
 function FilePicker() {
   const selectedConversation = useStore(
@@ -26,22 +27,21 @@ function FilePicker() {
 
   const { loading, sendMessage } = useSendMessage();
 
-  const [mediaUrl, setMediaUrl] = useState<any>(undefined);
+  const [file, setFile] = useState<any>(undefined);
   const [mediaType, setMediaType] = useState<
     "image" | "video" | "document" | "audio" | undefined
   >(undefined);
 
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e?.target?.files?.[0] ?? null;
+    const newFile = e?.target?.files?.[0] ?? null;
 
-    if (file) {
+    if (newFile) {
       const maxFileSizeMB = 5;
       const maxFileSizeBytes = maxFileSizeMB * 1024 * 1024;
 
-      if (file?.size > maxFileSizeBytes) {
+      if (newFile?.size > maxFileSizeBytes) {
         console.error(`File size exceeds the limit of ${maxFileSizeMB}MB.`);
-        setMediaUrl(null);
+        setFile(null);
         setMediaType(undefined);
         return;
       }
@@ -50,20 +50,24 @@ function FilePicker() {
 
       reader.onloadend = () => {
         // Detect media type based on file type
-        const mimeType = file?.type;
+        const mimeType = newFile?.type;
 
         if (mimeType?.startsWith("image/")) {
           setMediaType("image");
-          setMediaUrl(reader?.result);
+          // setMediaUrl(reader?.result);
+          setFile(newFile);
         } else if (mimeType?.startsWith("video/")) {
           setMediaType("video");
-          setMediaUrl(reader?.result);
+          // setMediaUrl(reader?.result);
+          setFile(newFile);
         } else if (mimeType?.startsWith("audio/")) {
-          setMediaUrl(reader?.result);
+          // setMediaUrl(reader?.result);
+          setFile(newFile);
 
           setMediaType("audio");
         } else if (mimeType?.startsWith("application/pdf")) {
-          setMediaUrl(reader?.result);
+          // setMediaUrl(reader?.result);
+          setFile(newFile);
 
           setMediaType("document");
         } else {
@@ -74,30 +78,46 @@ function FilePicker() {
         }
       };
 
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(newFile);
     } else {
       console.error("No file selected.");
-      setMediaUrl(undefined);
+      // setMediaUrl(undefined);
+      setFile(undefined);
       setMediaType(undefined);
     }
   };
   const handleSubmit = () => {
-    if (mediaUrl?.trim() && mediaType?.trim && selectedConversation?._id) {
-      const newMessage = {
-        mediaUrl,
-        mediaType,
-        text: "",
+    if (file && mediaType?.trim && selectedConversation?._id) {
+      const newMessage: any = {
+        mediaType: mediaType,
+        text: file?.name,
       };
-      sendMessage(selectedConversation?._id, newMessage);
+      NetworkService.upload(
+        "anmol-apps",
+        `draftchat/${selectedConversation?._id}/${file?.name}`,
+        file
+      )
+        .then((res) => {
+          newMessage.mediaUrl = res;
+          sendMessage(selectedConversation?._id, newMessage);
+        })
+        .catch((err) => {
+          console.error("Error uploading file", err);
+        })
+        .finally(() => {
+          handleCancel();
+        });
     }
 
-    setMediaUrl(null);
+    setFile(null);
     setMediaType(undefined);
   };
 
   const handleCancel = () => {
-    setMediaUrl(null);
+    setFile(null);
     setMediaType(undefined);
+    //note must add this custom line to shadcn the DialogContent --- dialog primivate.close
+    document.getElementById('closeDialog')?.click();
   };
 
   return (

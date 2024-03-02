@@ -20,7 +20,6 @@ async function sendMessage(req: any, res: Response) {
 		const conversationObjectId = new mongoose.Types.ObjectId(conversationId as string);
 
 		let conversation = await Conversation.findById(conversationObjectId);
-		
 		if (!conversation) {
 			return res.status(404).json({ error: "Conversation not found" });
 		}
@@ -40,7 +39,7 @@ async function sendMessage(req: any, res: Response) {
 		}
 
 		await Promise.all([newMessage.save(), conversation.save()]);
-		
+
 		// remove the current user from the participants array
 		conversation.participants = conversation.participants.filter(
 			(participant) => participant?._id?.toString() !== senderId?.toString()
@@ -49,7 +48,7 @@ async function sendMessage(req: any, res: Response) {
 		console.log(`🚀 ~ file: message.controller.ts:49 ~ sendMessage ~ conversation.participants:`, conversation.participants);
 
 
-		const finalMessgae =  await newMessage.populate({
+		const finalMessgae = await newMessage.populate({
 			path: 'senderId',
 			select: 'fullName email username profilePic _id'
 		})
@@ -60,9 +59,8 @@ async function sendMessage(req: any, res: Response) {
 		if (receiverSocketId) {
 			io.to(receiverSocketId).emit("newMessage", newMessage);
 		}
-		
 
-		res.status(201).json({data: finalMessgae});
+		res.status(201).json({ data: finalMessgae });
 	} catch (error: any) {
 		res.status(500).json({ error: error?.message });
 	}
@@ -76,35 +74,35 @@ async function getMessages(req: any, res: Response) {
 		const conversationObjectId = new mongoose.Types.ObjectId(conversationId as string);
 
 		const conversationPromise = Conversation.findById(conversationObjectId).populate({
-            path: 'messages',
+			path: 'messages',
 			options: { sort: { 'createdAt': 1 } },
 			populate: {
 				path: 'senderId',
 				select: 'fullName email username profilePic _id'
 			}
-        });
+		});
 
-        const updateSeenStatusPromise = Message.updateMany(
-            {
-                conversationId: conversationObjectId,
+		const updateSeenStatusPromise = Message.updateMany(
+			{
+				conversationId: conversationObjectId,
 				senderId: { $ne: senderId },
-                seen: false,
-            },
-            { seen: true }
-        );
+				seen: false,
+			},
+			{ seen: true }
+		);
 
-        // Wait for the promises to resolve here in parallel
-        const [conversation, updateSeenStatusResult] = await Promise.all([conversationPromise, updateSeenStatusPromise]);
+		// Wait for the promises to resolve here in parallel
+		const [conversation, updateSeenStatusResult] = await Promise.all([conversationPromise, updateSeenStatusPromise]);
 
-        if (!conversation) {
-            return res.status(404).json([]);
-        }
+		if (!conversation) {
+			return res.status(404).json([]);
+		}
 
 		//TODO: SOCKET UPDATE THE RECIPIENT
-		
+
 		const messages = conversation.messages;
 		// Group messages by date
-		const messagesByDate = conversation.messages.reduce((groups:any, message:any) => {
+		const messagesByDate = conversation.messages.reduce((groups: any, message: any) => {
 			const date = message?.createdAt?.toISOString().split('T')[0];
 			if (!groups[date]) {
 				groups[date] = [];
@@ -113,8 +111,15 @@ async function getMessages(req: any, res: Response) {
 			return groups;
 		}, {});
 
-		res.status(200).json({data:messagesByDate});
-	
+		// Sort messages within each group
+		for (let date in messagesByDate) {
+			messagesByDate[date].sort((a: any, b: any) => {
+				return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+			});
+		}
+
+		res.status(200).json({ data: messagesByDate });
+
 	} catch (error: any) {
 		res.status(500).json({ error: error?.message });
 	}
