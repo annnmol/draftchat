@@ -4,7 +4,7 @@ import { createConversation, deleteConversation, getConversation, myConversation
 const conversationRouter = express.Router();
 
 conversationRouter.get("/me", myConversations);
-conversationRouter.post("/create/:receiverId", createConversation);
+conversationRouter.post("/create/:receiverEmail", createConversation);
 conversationRouter.delete("/delete/:conversationId", deleteConversation);
 conversationRouter.get("/get/:conversationId", getConversation);
 

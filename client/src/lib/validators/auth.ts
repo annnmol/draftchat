@@ -58,3 +58,8 @@ export const changePasswordIntialValues = {
   password: "",
   confirm: "",
 };
+
+
+//============= Email =============
+
+export const emailSchema = z.string().email();

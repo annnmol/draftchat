@@ -91,7 +91,7 @@ export class Network {
         });
 
         try {
-            const response = await s3Client.send(command);
+            await s3Client.send(command);
             const url = `https://${bucket}.s3.ap-south-1.amazonaws.com/${key}`;
             return url;
         } catch (err) {

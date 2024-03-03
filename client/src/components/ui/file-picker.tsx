@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Paperclip } from "lucide-react";
 import useStore from "@/zustand";
 import { useShallow } from "zustand/react/shallow";
-import useSendMessage from "../hooks/useSendMessage";
+import useSendMessage from "@/components/hooks/useSendMessage";
 import {NetworkService } from "@/lib/network";
 import { toast } from "sonner";
 
@@ -48,7 +48,7 @@ function FilePicker() {
         toast.error("File Error", {
           description: `File size exceeds the limit of ${maxFileSizeMB}MB.`,
           position: "top-center",
-          duration: 1500,
+          duration: 1000,
       });
         return;
       }

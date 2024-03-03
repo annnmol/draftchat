@@ -1,6 +1,7 @@
 import { Response } from "express";
 import mongoose from "mongoose";
 import Conversation from "../models/conversation.model";
+import { getUserByUserEmail } from "../models/user.model";
 
 async function myConversations(req: any, res: Response) {
 	try {
@@ -23,7 +24,7 @@ async function myConversations(req: any, res: Response) {
 			);
 		});
 
-		res.status(200).json({data: conversations});
+		res.status(200).json({ data: conversations });
 	} catch (error: any) {
 		res.status(500).json({ error: error?.message });
 	}
@@ -31,24 +32,37 @@ async function myConversations(req: any, res: Response) {
 
 async function createConversation(req: any, res: Response) {
 	try {
-		const { receiverId } = req?.params;
+		const { receiverEmail } = req?.params;
 		const senderId = req?.user?._id;
+
+		//find user using email
+		const user = await getUserByUserEmail(receiverEmail);
+
+		if (!user) {
+			return res.status(404).json({ error: "User not found" });
+		}
+
+		const receiverId = user?._id;
+
+		if (senderId === receiverId) {
+			return res.status(400).json({ error: "You cannot create a conversation with yourself" });
+		};
 
 		let conversation = await Conversation.findOne({
 			participants: { $all: [senderId, receiverId] },
 		});
 
 		if (conversation) {
-			return res.status(200).json({data: conversation,message: "Conversation already exists"});
+			return res.status(400).json({ error: "Conversation already exists" });
 		}
 
-					// create a new conversation
-					conversation = new Conversation({
-						participants: [senderId, receiverId],
-						messages: [],
-						lastMessage: undefined,
-					});
-					await conversation.save();
+		// create a new conversation
+		conversation = new Conversation({
+			participants: [senderId, receiverId],
+			messages: [],
+			lastMessage: undefined,
+		});
+		await conversation.save();
 
 		conversation = await conversation.populate({
 			path: "participants",
@@ -62,7 +76,7 @@ async function createConversation(req: any, res: Response) {
 
 		//TODO: SOCKET UPDATE THE RECIPIENT
 
-		res.status(201).json({data: conversation});
+		res.status(201).json({ data: conversation });
 	} catch (error: any) {
 		res.status(500).json({ error: error?.message });
 	}
@@ -92,7 +106,7 @@ async function getConversation(req: any, res: Response) {
 			(participant) => participant?._id?.toString() !== senderId?.toString()
 		);
 
-		res.status(200).json({data: conversation});
+		res.status(200).json({ data: conversation });
 	} catch (error: any) {
 		res.status(500).json({ error: error?.message });
 	}
@@ -113,7 +127,7 @@ async function deleteConversation(req: any, res: Response) {
 
 		//TODO: SOCKET UPDATE THE RECIPIENT
 
-		res.status(200).json({data: conversation});
+		res.status(200).json({ data: conversation });
 	} catch (error: any) {
 		res.status(500).json({ error: error?.message });
 	}
