@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
-import { useEffect, useRef, useState } from "react";
+import { cn, formatDateTime } from "@/lib/utils";
+import { memo, useEffect, useRef, useState } from "react";
 import ChatAvatar from "@/components/shared/chat/chat-avatar";
 import useStore from "@/zustand";
 import { useShallow } from "zustand/react/shallow";
@@ -7,6 +7,8 @@ import useGetMessages from "@/components/hooks/useGetMessages";
 import { useAuth } from "@/context/auth-context";
 import ChatSkeleton from "./chat-skeleton";
 import useListenMessages from "@/components/hooks/useListenMessages";
+import { Download, FileText } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 
 const IMAGE_NOT_FOUND =
   "https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png";
@@ -34,7 +36,7 @@ export default function ChatScreen() {
     return () => {
       removesAllMessages();
     };
-  }, [selectedConversation]);
+  }, [selectedConversation]); // eslint-disable-line
 
   //to rerender component after image loaded
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -93,45 +95,37 @@ export default function ChatScreen() {
                         name={message?.senderId?.fullName}
                         className="w-8 h-8"
                       />
-                      <div className="bg-accent p-2 rounded-md max-w-xs flex flex-col gap-2">
+                      <div className="bg-accent rounded-md max-w-xs flex flex-col gap-1 leading-1.5 px-3 py-2 dark:bg-gray-700">
                         {message?.mediaUrl?.length > 0 ? (
                           <>
                             {message?.mediaType === "image" && (
-                              <img
-                                src={(message?.mediaUrl as string) ?? undefined}
-                                onLoad={() => setImgLoaded((prev) => !prev)}
-                                alt="Message_image"
-                                className="rounded-md w-full max-h-[300px] object-cover"
-                                onError={(e: any) =>
-                                  (e.target.src = IMAGE_NOT_FOUND)
-                                }
+                              <RenderImage
+                                src={message?.mediaUrl}
+                                setImgLoaded={setImgLoaded}
                               />
                             )}
 
                             {message?.mediaType === "audio" && (
-                              <audio
-                                src={(message?.mediaUrl as string) ?? undefined}
-                                onLoad={() => setImgLoaded((prev) => !prev)}
-                                className="rounded-md w-full min-w-[200px] max-h-[300px] object-cover"
-                                controls
+                              <RenderAudio
+                                src={message?.mediaUrl}
+                                setImgLoaded={setImgLoaded}
                               />
                             )}
 
                             {message?.mediaType === "video" && (
-                              <video
-                                src={(message?.mediaUrl as string) ?? undefined}
-                                onLoad={() => setImgLoaded((prev) => !prev)}
-                                className="rounded-md w-full max-h-[200px] min-h-[200px] object-cover"
-                                controls
-                                onLoadedData={() =>
-                                  setImgLoaded((prev) => !prev)
-                                }
+                              <RenderVideo
+                                src={message?.mediaUrl}
+                                setImgLoaded={setImgLoaded}
                               />
+                            )}
+
+                            {message?.mediaType === "document" && (
+                              <RenderDocument src={message?.mediaUrl} />
                             )}
                           </>
                         ) : null}
-
-                        {message.text}
+                        <RenderText text={message.text as string} />
+                        <RenderTime time={message.createdAt} />
                       </div>
                     </div>
                   </div>
@@ -140,25 +134,115 @@ export default function ChatScreen() {
           </div>
         );
       })}
-{/* 
-      <div className="flex items-start gap-2.5">
-
-        <div className="flex flex-col gap-1 w-full max-w-[320px]">
-
-          <div className="flex flex-col gap-1 leading-1.5 px-3 py-2 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
-            <p className="text-sm font-normal text-gray-900 dark:text-white">
-              {" "}
-              That's awesome. I think our users will really appreciate the
-              improvements.
-            </p>
-            <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-              Delivered  <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-              11:46
-            </span>
-            </span>
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 }
+
+interface RenderTextProps {
+  text: string;
+}
+const RenderText = memo(({ text }: RenderTextProps) => {
+  return (
+    <p className="text-sm font-normal text-gray-900 dark:text-white">{text}</p>
+  );
+});
+interface RenderTimeProps {
+  time: any;
+}
+
+const RenderTime = memo(({ time }: RenderTimeProps) => {
+  time = formatDateTime(time).timeOnly;
+  if (time === "Invalid date" || !time) return null;
+  return (
+    <span className="text-[12px] font-normal text-gray-500 dark:text-gray-400">
+      {time}
+    </span>
+  );
+});
+
+interface RenderImageProps {
+  src: any;
+  setImgLoaded: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const RenderImage = memo(({ src, setImgLoaded }: RenderImageProps) => {
+  if (!src) return null;
+  return (
+    <img
+      src={(src as string) ?? undefined}
+      onLoad={() => setImgLoaded((prev) => !prev)}
+      alt="Message_image"
+      className="rounded-lg w-full max-h-[300px] object-cover"
+      onError={(e: any) => (e.target.src = IMAGE_NOT_FOUND)}
+      onClick={() => window.open(src, "_blank")}
+    />
+  );
+});
+
+interface RenderVideoProps {
+  src: any;
+  setImgLoaded: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const RenderVideo = memo(({ src, setImgLoaded }: RenderVideoProps) => {
+  if (!src) return null;
+  return (
+    <video
+      src={(src as string) ?? undefined}
+      onLoad={() => setImgLoaded((prev) => !prev)}
+      className="rounded-lg w-full max-h-[200px] min-h-[200px] object-cover"
+      controls
+      onLoadedData={() => setImgLoaded((prev) => !prev)}
+    />
+  );
+});
+
+interface RenderAudioProps {
+  src: any;
+  setImgLoaded: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const RenderAudio = memo(({ src, setImgLoaded }: RenderAudioProps) => {
+  if (!src) return null;
+  return (
+    <audio
+      src={(src as string) ?? undefined}
+      onLoad={() => setImgLoaded((prev) => !prev)}
+      className="rounded-lg w-full min-w-[200px] max-h-[300px] object-cover"
+      controls
+    />
+  );
+});
+
+interface RenderDocumentProps {
+  src: any;
+}
+
+const RenderDocument = memo(({ src }: RenderDocumentProps) => {
+  if (!src) return null;
+  return (
+    <div className="flex gap-2 items-center bg-gray-50 dark:bg-gray-600 rounded-xl p-2">
+      <FileText size={20} />
+      <span className="text-sm font-medium text-gray-900 dark:text-white">
+        Download File
+      </span>
+      <div className="inline-flex self-center items-center">
+        <a
+          href={src}
+          download={src}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cn(
+            buttonVariants({
+              variant: "ghost",
+              size: "lg",
+            }),
+            "px-3 py-2"
+          )}
+        >
+          <Download size={18} />
+        </a>
+      </div>
+    </div>
+  );
+});
