@@ -10,14 +10,18 @@ import { useAuth } from "@/context/auth-context";
 interface Props {
   conversation: any;
   isSelected: boolean;
-  handleClick:(conversation:any)=>void
+  handleClick: (conversation: any) => void;
 }
 
-export default function ChatCard({ conversation, isSelected = false,handleClick }: Props) {
+export default function ChatCard({
+  conversation,
+  isSelected = false,
+  handleClick,
+}: Props) {
   const { authUser } = useAuth();
   const oppositeUser = conversation?.participants?.[0];
   const lastMessage = conversation?.lastMessage;
-  const updatedAt = formatDateTime(conversation?.updatedAt).dateTime;
+  const updatedAt = formatDateTime(conversation?.updatedAt).timeOnly;
   return (
     <Link
       to="#"
@@ -27,30 +31,39 @@ export default function ChatCard({ conversation, isSelected = false,handleClick 
           variant: isSelected ? "secondary" : "ghost",
           size: "lg",
         }),
+        "flex gap-2 p-2 h-[56px] w-full rounded-lg ",
         isSelected &&
           "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white shrink",
-        "justify-start gap-4"
       )}
     >
       <ChatAvatar
         src={oppositeUser?.profilePic}
         name={oppositeUser?.fullName}
+        className="w-9 h-9"
       />
 
-      <div className="flex flex-col max-w-28">
-        <span>{oppositeUser?.fullName}</span>
-        {lastMessage?.text && (
-          <span className="text-zinc-300 text-xs truncate ">
+      <div className="flex flex-col justify-center gap-[2px] w-full h-full">
+        <div className="flex justify-between w-full align-start">
+          <span className="w-full leading-4">{oppositeUser?.fullName}</span>
+          <span className="text-zinc-300 text-xs">{updatedAt}</span>
+        </div>
+
+        <div className="flex justify-between w-full">
+          <span className="flex items-center text-zinc-300 text-xs truncate w-full">
             {lastMessage?.senderId === authUser?._id ? (
               <CheckCheck
                 width={16}
                 className={lastMessage?.seen && "text-[blue]"}
-                />
-                ) : null}
+              />
+            ) : null}
             {lastMessage?.text}
           </span>
-        )}
-        <span className="text-zinc-300 text-xs">{updatedAt}</span>
+          {conversation?.unreadMessages > 0 && (
+            <span className=" text-xs text-[green]">
+              {conversation?.unreadMessages}
+            </span>
+          )}
+        </div>
       </div>
     </Link>
   );

@@ -4,12 +4,10 @@ import Providers from "@/lib/providers";
 
 export default function RootLayout() {
   return (
-    <>
-      <main className="relative h-full font-sans antialiased flex flex-col min-h-screen mx-auto w-full overflow-x-hidden">
+      <main className="relative h-full font-sans antialiased flex flex-col min-h-screen mx-auto w-full overflow-hidden">
         <Providers>
           <Outlet />
         </Providers>
       </main>
-    </>
   );
 }

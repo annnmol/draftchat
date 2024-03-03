@@ -8,8 +8,8 @@ import CreateConversation from "./create-conversation";
 export default function SidebarHeader() {
   return (
     <>
-      <div className="flex gap-2 items-center text-2xl">
-        <p className="font-medium">Chats</p>
+      <div className="hidden md:flex gap-2 items-center text-2xl">
+        <p className="font-medium text-xl">Chats</p>
       </div>
 
       <div>

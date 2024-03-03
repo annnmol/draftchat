@@ -11,7 +11,7 @@ interface Props {
 export default function ChatAvatar({
   src,
   name,
-  className = "w-10 h-10",
+  className = "w-9 h-9",
 }: Props) {
   return (
     <Avatar className="flex justify-center items-center">

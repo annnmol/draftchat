@@ -76,8 +76,8 @@ export default function ChatInput() {
 
 
   return (
-    <>
-      <div className="p-2 flex justify-between w-full items-center gap-2">
+
+      <div className="p-2 flex justify-between w-full items-center gap-2 min-h-[64px] max-h-[64px]">
         <div className="flex">
           <FilePicker />
           {/* <Link
@@ -128,6 +128,6 @@ export default function ChatInput() {
           )}
         </Button>
       </div>
-    </>
+
   );
 }

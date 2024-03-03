@@ -1,12 +1,9 @@
-"use server";
-
-import { Separator } from "@/components/ui/separator";
 import Sidebar from "@/components/shared/sidebar/sidebar";
 import ChatWrapper from "@/components/shared/chat/chat-wrapper";
 import useStore from "@/zustand";
 import { useShallow } from "zustand/react/shallow";
 
-interface Props {}
+// interface Props {}
 
 export default function ChatLayout() {
   const selectedConversation = useStore(
@@ -15,12 +12,11 @@ export default function ChatLayout() {
 
   return (
     <>
-      <Sidebar isCollapsed={false} />
-      <Separator orientation="vertical" />
+      <Sidebar />
       {selectedConversation?._id ? (
         <ChatWrapper />
       ) : (
-        <p> select a conversation</p>
+        <div className="text-x flex flex-1 justify-center items-center md:text-xl"> select a conversation</div>
       )}
     </>
   );
